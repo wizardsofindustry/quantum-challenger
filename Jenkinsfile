@@ -199,13 +199,13 @@ pipeline {
             case 'develop':
               tags.add('latest-testing')
               break
-            case ~/^(release|version|sprint)\-.*$/:
+            case ~/^(release|version|sprint)-.*$/:
               tags.add("${env.GIT_BRANCH}-latest")
               break
-            case ~/^(hotfix|fix)\-.*$/:
+            case ~/^(hotfix|fix)-.*$/:
               tags.add("${env.GIT_BRANCH}-latest")
               break
-            case ~/^(feature|task)\-.*$/:
+            case ~/^(feature|task)-.*$/:
               tags.add("${env.GIT_BRANCH}-latest")
               break
             default:
