@@ -32,6 +32,8 @@ services:
     environment:
     - CHALLENGER_RUNTIME=${CHALLENGER_RUNTIME-service}
     - CHALLENGER_SECRET_KEY=b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657
+    - CHALLENGER_HTTP_ADDR=0.0.0.0
+    - CHALLENGER_HTTP_PORT=8443
     volumes:
     - "./etc:/etc/challenger:ro"
     expose:
