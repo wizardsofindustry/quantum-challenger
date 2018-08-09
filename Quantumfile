@@ -49,6 +49,10 @@ environ:
   - name: SECRET_KEY
     default: b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657
     comment: Not for production use!
+  - name: HTTP_ADDR
+    default: '0.0.0.0'
+  - name: HTTP_PORT
+    default: '8443'
 
 
 # The application is currently not configured as an event listener. To
@@ -158,7 +162,7 @@ docker:
 
     # Indicates if the CI pipeline may use VCS tags to tag
     # containers.
-    use_tags: true
+    use_tags: True
 
     # Specifies the branches that will trigger a container build
     # by default.
@@ -167,11 +171,9 @@ docker:
       tag: latest
     - name: develop
       tag: latest-testing
+    - pattern: "^(release|version|sprint)\-.*$"
+    - pattern: "^(hotfix|fix)\-.*$"
 
-    # For pattern matched branches, the branch name is used
-    # as the container tag.
-    - pattern: "^(release|version|sprint)\\-.*$"
-    - pattern: "^(hotfix|fix)\\-.*$"
 
 
 
