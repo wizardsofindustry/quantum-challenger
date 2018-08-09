@@ -1,0 +1,16 @@
+[TYPECHECK]
+
+# Ignore members from the sq library, since some of them are dynamically
+# generated which causes pylint to complain.
+generated-members=sq.*
+
+
+[MISCELLANEOUS]
+
+# Specifies tags that should emit warnings when found in the application
+# codebase.
+notes=
+
+
+[MESSAGES CONTROL]
+disable=abstract-method,invalid-name
