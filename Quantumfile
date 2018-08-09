@@ -1,0 +1,189 @@
+---
+# General project information.
+project:
+  version: 1.0.0
+  name: No project name specified
+
+# This section specifies additional properties of the deployment
+# environment for the challenger service.
+deployment:
+
+  # The deployment realm is either 'perimeter' (public-facing
+  # services), 'citadel' (core internal service), business
+  # (services implementing the business domain) or 'auxilary'
+  # (supporting services).
+  realm: citadel
+
+
+# This section describes the characteristics of the SG generated
+# application.
+app:
+
+  # Indicates that the application requires a relational database systen. Quantum
+  # services are assumed to connect to one RDBMS only.
+  rdbms: false
+
+  # Specifies the roles that the application has. Valid values are
+  # 'http', 'handler', 'runner', 'listener' or 'scheduler'.
+  roles:
+  - http
+
+
+# Basic Python package configuration and settings.
+package:
+  language: python
+
+  # This is the name of the Python module that contains the application
+  # code, and is also used as a general identifier for this service.
+  name: challenger
+
+  # Python module requirements from PyPi. Specified as in a requirements.txt,
+  # file.
+  requirements: []
+
+
+# Application environment settings and variables.
+environ:
+  prefix: true # Prefix environment variables with CHALLENGER_
+  variables:
+  - name: SECRET_KEY
+    default: b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657
+    comment: Not for production use!
+
+
+# The application is currently not configured as an event listener. To
+# enable this feature, add the 'listener' role to the #/app/roles list.
+listener:
+
+  # Lists all events that the application subscribes to. This does not
+  # imply that it knows how to handle them (i.e., has a handler function
+  # configured), only that it wants to receive them.
+  events: []
+
+  # The list below configures the event handlers that are run on each
+  # incoming event message (individual handlers may choose to drop
+  # messages). Each item in the list is a dictionary, having at least
+  # a `qualname` member, specifying the Python qualified name (e.g.
+  # import path) to the event handler *class*. For more information on
+  # event handler classes, refer to the Sovereign Quantum documentation.
+  handlers:
+  - qualname: sq.event.NullEventHandler
+
+  # Specifies the channel from which this application will receive
+  # its event messages. Event messages are assumed to be routed
+  # according to the criteria specified above.
+  channel: challenger.events.ingress
+
+
+# Security related settings.
+security:
+
+  # A generic application secret that may be used, for example, to generate
+  # signed cookies or other message signatures. This value MUST NOT be used in
+  # production, and exists for development and testing purposes only.
+  secret_key: b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657
+
+  tls:
+
+    # A snakeoil X.509 certificate that is used to enable Transport Level Security (TLS)
+    # in non-production environments. Like `secret_key`, this configuration MUST NOT
+    # be used in production. Additional hostnames may be specified in the `hostnames`
+    # section.
+    hostnames:
+    - challenger
+
+    crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIByzCCATSgAwIBAgICA+gwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UEAwwKY2hh
+      bGxlbmdlcjAeFw0xODA4MDkyMDAzMDFaFw0yODA4MDYyMDAzMDFaMBUxEzARBgNV
+      BAMMCmNoYWxsZW5nZXIwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMKHUHak
+      YkCjW+2hvuJSCEaVjjopSMTNko1OFZbS7XHVpZmkguh92pDzPhhx2UXndnwLlI30
+      Ql8ADlIb50ooIopgz3D1eehBvLrPUjsHjegaWKna8BJos8vkxydgOI/oiU2N2RTL
+      lrtHkaJ80BV7+mdX0KCDDgNKBZ8hj89NMVjvAgMBAAGjKjAoMA8GA1UdEwQIMAYB
+      Af8CAQAwFQYDVR0RBA4wDIIKY2hhbGxlbmdlcjANBgkqhkiG9w0BAQsFAAOBgQAq
+      PanaaiR7iFVAXE89y2t2batX0qDDw/yYCVuufDdEcYZDZjb3yJhlnmfCVa9lFxoB
+      JtLFkPg0Duvg2vRLcR7FVCEsgmpHLGC+7l4BaFpfUd7+kK0MnUShWFJ72/L+M1CS
+      KF7TxCn83KD3KVEWFSYwum2TOR38taZmW/elCNyg9w==
+      -----END CERTIFICATE-----
+
+    key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIICXQIBAAKBgQDCh1B2pGJAo1vtob7iUghGlY46KUjEzZKNThWW0u1x1aWZpILo
+      fdqQ8z4YcdlF53Z8C5SN9EJfAA5SG+dKKCKKYM9w9XnoQby6z1I7B43oGlip2vAS
+      aLPL5McnYDiP6IlNjdkUy5a7R5GifNAVe/pnV9Cggw4DSgWfIY/PTTFY7wIDAQAB
+      AoGBALccHHexgPMLUqs7B62OPlAC02CYH/Fw+LSefd/9KJlw3HLl0nv6i9TJwvfL
+      oxQULwnQ9MMy248FRHWx4mOBqBAo0fvHdh1pIbW9RTUUmTbhGdpIkPBJubWg3TNo
+      Op8ZqJRO26HIKrGYOy43rek2sUMotsMnKz3hTp6O7vL8H62hAkEA7iXPBcyEgsxs
+      1H1fmmIoLCpjhH+5Az80nMiJMlYwOI2yuJ9geUq9vIM5TJ1jlhHkTqGofCbuG1Ge
+      11LffYokBwJBANEcbfu4bKeHfn63RIqM1PXOFduxCm54ATbnASdk1l65IB4v5mKg
+      3vr5ASQyQnc06xIsFubQnqmTecflPFIC+dkCQCYv/+NxKSqEN0tXk1YBOWnjnjOn
+      +3Xu07P0YDOnKHJZHniGbgTlHEm3TR/g+RAebFrDh23pHDNbQjpK+rV5yk8CQH0z
+      f2pynqOjzYoDIset0KgnrxCtrKg9s8RyhU9X4b4vK1rHpTIyTa+IvTU13nPPPFvS
+      CBhEmmq/wO99giM8YukCQQC7FY5CbTkS6DpbCuC0DnesTSEBWC/G4MGD8/oD+6KT
+      Bucn9fe/6B97l9a85Tw3wzxZYsF87FGKQTmJspnKRB2W
+      -----END RSA PRIVATE KEY-----
+
+
+
+# A list of Quantum services that the application requires.
+#requires:
+#- url: git+https://github.com/wizardsofindustry/quantum-usr.git
+
+
+# Configuration related to the automated testing of the Quantum
+# service.
+testing:
+  min_coverage: 0
+
+
+# Docker configuration.
+docker:
+
+  # The base image for the application container. This value
+  # may be changed to use a custom image, instead of the
+  # default Quantum base image.
+  base: wizardsofindustry/quantum:latest
+
+  # Specifies the Docker repository that is used for
+  # this application, used by development tooling and
+  # the CI/CD pipeline.
+  repository: wizardsofindustry/quantum-challenger
+
+  # CI/CD configuration for containerization and image
+  # publication.
+  ci:
+    # The credentials that the CI/CD pipeline may use to
+    # login and publish to a Docker registry.
+    credentials_id: wizards-docker-repo
+
+    # Indicates if the CI pipeline may use VCS tags to tag
+    # containers.
+    use_tags: true
+
+    # Specifies the branches that will trigger a container build
+    # by default.
+    build_branches:
+    - name: master
+      tag: latest
+    - name: develop
+      tag: latest-testing
+
+    # For pattern matched branches, the branch name is used
+    # as the container tag.
+    - pattern: "^(release|version|sprint)\\-.*$"
+    - pattern: "^(hotfix|fix)\\-.*$"
+
+
+
+# This section contains SG related settings and should not be modified under
+# normal circumstances.
+sg:
+
+  # Specifies the SG project type. Allowed values are: service, system or infra.
+  type: service
+  dirname: .sg
+
+
+# Configuration file format version. Changing this will have dire
+# consequences.
+version: "1"
