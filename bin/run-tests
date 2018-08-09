@@ -1,0 +1,71 @@
+#!/bin/sh
+#######################################################################
+#
+# CHALLENGER TEST RUNNER
+#
+#  Unit:
+#    Atomic tests of the application codebase.
+#  Integration:
+#    Test the application codebase as a whole, with external
+#    dependencies (e.g., database servers, HTTP APIs) mocked.
+#  System:
+#    Test the application as a part of a larger system.
+#  Smoke:
+#    Runs black box tests in order to identify non-critical
+#    issues with the application. Failing smoke tests will result
+#    in the build being UNSTABLE, even if the next phase (preliminary
+#    quality assurance) succeeds.
+#  Preliminary Quality Assurance:
+#    Like quality assurance testing, but without a "real" dataset i.e.
+#    separated from the live application environment. These are
+#    mostly black box tests on HTTP endpoints or application
+#    responses to transmission on the Aorta messaging infrastrucure.
+#
+#######################################################################
+SQ_TESTING_PHASE=${SQ_TESTING_PHASE-"unit"}
+SQ_DISABLE_AUTH=${SQ_DISABLE_AUTH-"1"}
+BUILD_ID=${BUILD_ID-"0"} # Used to allow concurrent builds in the CI.
+MODULE_NAME="challenger"
+MIN_PERCENTAGE="0"
+COVERAGE_FILE=".coverage.$SQ_TESTING_PHASE.$BUILD_ID"
+COVERAGE=coverage3
+RETVAL="0"
+
+export SQ_TESTING_PHASE
+export SQ_DISABLE_AUTH
+export COVERAGE_FILE
+echo "Running test phase '$SQ_TESTING_PHASE', build: $BUILD_ID"
+case $SQ_TESTING_PHASE in
+  lint)
+    find ./challenger -iname "*.py" | xargs pylint\
+      -d too-few-public-methods -d duplicate-code\
+      -d bad-continuation -d line-too-long --ignore __init__.py
+    RETVAL=`echo $?`
+  ;;
+  unit)
+    $COVERAGE run -m nose --cover-package=$MODULE_NAME $@
+    RETVAL=`echo $?`
+  ;;
+  integration)
+    $COVERAGE run -m nose --cover-package=$MODULE_NAME $@
+    RETVAL=`echo $?`
+  ;;
+  system)
+    $COVERAGE run -m nose --cover-package=$MODULE_NAME $@
+    RETVAL=`echo $?`
+  ;;
+  smoke)
+  ;;
+  preqa)
+  ;;
+  coverage)
+    export COVERAGE_FILE=".coverage"
+    $COVERAGE combine .
+    $COVERAGE report --include=$MODULE_NAME/* \
+        --fail-under $MIN_PERCENTAGE -m\
+        --omit **/test_*\
+        --skip-covered
+    RETVAL=`echo $?`
+  ;;
+esac
+exit $RETVAL
