@@ -81,6 +81,9 @@ pipeline {
           // by git tag -l) will be used.
           sh 'git fetch --tags'
           commit_tag = sh(returnStdout: true, script: "git tag -l --points-at HEAD | tail -1").trim()
+          if (commit_tag) {
+            sh "echo 'Commit tag is: ${commit_tag}'"
+          }
 
           // Ensure that the base image is up-to-date
           image_base = docker.image('wizardsofindustry/quantum:latest')
