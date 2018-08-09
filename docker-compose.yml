@@ -1,0 +1,46 @@
+---
+#######################################################################
+#
+# CHALLENGER SYSTEM COMPOSE FILE
+#
+# This Docker Compose configuration file sets a Docker network
+# resembling the production system environment hosting the
+# application.
+#
+# In addition to the environment variables recognized by the
+# application, the following variables configure the behavior of the
+# spawned containers:
+#
+# CHALLENGER_HTTP_PORT:
+#   Specifies the port to which the HTTP server binds (default: 8443).
+# CHALLENGER_RDBMS_PORT:
+#   Specifies the port to which the Relational Database Management
+#   System (RDBMS) binds.
+# CHALLENGER_AMQP_PORT:
+#   Specifies the port to which the Aorta backend binds (default: 5672).
+#   Consumers may connect to this port in order to *receive* messages
+#   published in the system.
+# CHALLENGER_MQADM_PORT:
+#   Specifies the port to which the administrative web interface of
+#   the message broker backend binds (default: 8161).
+#
+#######################################################################
+version: '3'
+services:
+  challenger:
+    build: .
+    environment:
+    - CHALLENGER_RUNTIME=${CHALLENGER_RUNTIME-service}
+    - CHALLENGER_SECRET_KEY=b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657
+    volumes:
+    - "./etc:/etc/challenger:ro"
+    expose:
+    - "8443"
+  http:
+    image: nginx:1.15.0-alpine
+    volumes:
+    - "./etc/certs/snakeoil.crt:/etc/ssl/certs/snakeoil.crt:ro"
+    - "./etc/private/snakeoil.pem:/etc/ssl/private/snakeoil.pem:ro"
+    - "./dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro"
+    ports:
+    - "127.0.0.1:${CHALLENGER_HTTP_PORT-8443}:443"
