@@ -202,6 +202,9 @@ pipeline {
             case ~/^(hotfix|fix)\-.*$/:
               tags.add("${env.GIT_BRANCH}-latest")
               break
+            case ~/^(feature|task)\-.*$/:
+              tags.add("${env.GIT_BRANCH}-latest")
+              break
             default:
               sh 'echo "Branch is not a candidate for Docker image build."'
           }

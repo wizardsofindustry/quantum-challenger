@@ -30,6 +30,8 @@ if os.getenv('CHALLENGER_SECRETS'):
 os.environ['SQ_ENVIRON_PREFIX'] = 'CHALLENGER'
 DEFAULT_SECRET_KEY = "b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657"
 os.environ.setdefault('CHALLENGER_SECRET_KEY', "b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657")
+os.environ.setdefault('CHALLENGER_HTTP_ADDR', "0.0.0.0")
+os.environ.setdefault('CHALLENGER_HTTP_PORT', "8443")
 
 
 class MainProcess(sq.runtime.MainProcess):
