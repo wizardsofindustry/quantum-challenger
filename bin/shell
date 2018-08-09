@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+import code
+
+import sq.runtime.environ
+
+from challenger import environ
+
+
+if __name__ == '__main__':
+  sq.runtime.environ.setup(environ)
+  code.interact(local=locals())
