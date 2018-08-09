@@ -171,9 +171,9 @@ docker:
       tag: latest
     - name: develop
       tag: latest-testing
-    - pattern: "^(release|version|sprint)\\-.*$"
-    - pattern: "^(hotfix|fix)\\-.*$"
-    - pattern: "^(feature|task)\\-.*$"
+    - pattern: "^(release|version|sprint)-.*$"
+    - pattern: "^(hotfix|fix)-.*$"
+    - pattern: "^(feature|task)-.*$"
 
 
 
