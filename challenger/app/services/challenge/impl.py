@@ -1,4 +1,5 @@
 """Declares :class:`ChallengeService`."""
+import hmac
 import secrets
 import string
 
@@ -41,6 +42,13 @@ class ChallengeService(BaseChallengeService):
         if dto.using not in self.valid_mechanims:
             self._on_invalid_delivery_mechanism(dto)
         return getattr(self, f'_retry_{dto.using}')(dto)
+
+    def verify(self, dto):
+        """Verifies the client-provided verification code against the
+        code that was persistent for the sender and recipient.
+        """
+        dao = self.repo.get(dto)
+        return hmac.compare.digest(dto.code, dao.code)
 
     def _retry_sms(self, dto):
         dao = self.repo.get(dto.using, dto.recipient)
