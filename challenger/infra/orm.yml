@@ -1,0 +1,31 @@
+---
+relations:
+- relname: phonenumberchallenges
+  classname: PhonenumberChallenge
+  description: >
+    Maintains information about verification challenges sent to
+    a (mobile) phonenumber.
+  columns:
+  - name: phonenumber
+    type: string
+    primary_key: true
+    description: >
+      Specifies the phonenumber to which the challenge was sent.
+  - name: challenged
+    type: int64
+    description: >
+      The date/time at which the challenge was sent, in milliseconds since
+      the UNIX epoch.
+  - name: using
+    type: string
+    description: >
+      The delivery mechanism of the challenge confirmation code.
+  - name: code
+    type: string
+    description: >
+      A shared secret that may be used to verify access to the specified
+      phonenumber.
+  - name: attempts
+    type: int32
+    description: >
+      The number of attempts to verify the phonenumber.
