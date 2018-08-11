@@ -1,8 +1,8 @@
 """initial revision
 
-Revision ID: 42edb201c9bf
+Revision ID: 59fe5943afd6
 Revises: 
-Create Date: 2018-08-11 06:30:00.000000
+Create Date: 2018-08-11 21:14:03.726541
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sq.ext.rdbms.types
 
 
 # revision identifiers, used by Alembic.
-revision = '42edb201c9bf'
+revision = '59fe5943afd6'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,8 +22,10 @@ def upgrade():
     op.create_table('phonenumberchallenges',
     sa.Column('phonenumber', sa.String(), nullable=False),
     sa.Column('challenged', sa.BigInteger(), nullable=False),
+    sa.Column('expires', sa.BigInteger(), nullable=False),
     sa.Column('using', sa.String(), nullable=False),
     sa.Column('code', sa.String(), nullable=False),
+    sa.Column('message', sa.String(), nullable=False),
     sa.Column('attempts', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('phonenumber')
     )
