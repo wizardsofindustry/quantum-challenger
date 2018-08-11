@@ -193,7 +193,6 @@ components:
       required:
       - recipient
       - sender
-      - message
       properties:
         sender:
           description: >
@@ -218,6 +217,7 @@ components:
             a new challenge, then only the confirmation code will be sent.
           type: string
           nullable: true
+          default: null
 
     Challenge:
       description: >
