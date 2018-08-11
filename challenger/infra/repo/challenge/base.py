@@ -14,5 +14,8 @@ class BaseChallengeRepository(Repository):
     def delete(self, using, sender, recipient):
         raise NotImplementedError("Subclasses must override this method.")
 
+    def get(self, get):
+        raise NotImplementedError("Subclasses must override this method.")
+
 
 # pylint: skip-file
