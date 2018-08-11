@@ -129,8 +129,7 @@ paths:
             A new challenge is created and queued for tranmission to the
             receiver.
         409:
-          description: >
-            A challenge exists for the specified phonenumber or email address.
+          $ref: "#/components/responses/DuplicateEntity"
         422:
           description: >
             The structure of the entity enclosed in the request body is invalid.
@@ -182,6 +181,13 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+
+    DuplicateEntity:
+      description: The client tried to create an entity with an identity that already exists.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DuplicateEntity"
 
   schemas:
     TextMessageChallenge:
@@ -287,6 +293,7 @@ components:
           nullable: false
 
     Version:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
@@ -300,6 +307,7 @@ components:
           type: string
 
     Health:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
@@ -322,6 +330,7 @@ components:
           format: int64
 
     Error:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
@@ -358,12 +367,49 @@ components:
           format: uuid
 
     ServiceNotAvailable:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
         code: "SERVICE_NOT_AVAILABLE"
         detail: "The service is currently not available. Try again later."
         hint: "Cease making requests until after the period indicated in the Retry-After header."
+      required:
+      - code
+      - message
+      - detail
+      - hint
+      properties:
+        code:
+          description: >
+            Specifies the cause of service unavailability.
+          type: string
+        message:
+          description: >
+            Error message targeted at the end-user.
+          type: string
+        detail:
+          description: >
+            A message providing a more detailed explanation of the reasons
+            why the service is not available.
+          type: string
+        hint:
+          description: >
+            A hint indicating on how to resolve the situation.
+          type: string
+
+    DuplicateEntity:
+      x-qsa-norender: true
+      type: object
+      nullable: false
+      example:
+        code: "DUPLICATE_ENTITY"
+        detail: >-
+          Unable to create the entity specified in the request body because an
+          entity with the same identity already exists.
+        hint: >-
+          Ensure that the identity of the entity enclosed in the request
+          body is unique.
       required:
       - code
       - message
