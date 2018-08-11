@@ -1,0 +1,59 @@
+#######################################################################
+#
+# CONTROLLER DEFINITION FOR VERIFYCTRL
+#
+# The definition provided in this file is used by SG to compile a
+# base class for the VerifyCtrl controller. For a
+# detailed explanation of configuration values, refer to the
+# comments below.
+#
+# The controller specified in this file will be compiled in the
+# following Python module:
+#
+#   challenger.app.ctrl.verify
+#
+# To create the implementation for this controller, edit its
+# module at:
+#
+#   ./challenger/app/ctrl/verify/impl.py
+#
+#######################################################################
+
+# Specifies the name of the controller class. This value is also used
+# to generate a module name, amongst other uses. Therefor, for correct
+# operation of the SG compiler, this SHOULD NOT be changed.
+name: VerifyCtrl
+
+
+# Defines the controller implementation(s) that are used by the
+# VerifyCtrl base class. It may also be used to inherit
+# from mixin classes. The elements are qualified names to Python
+# symbols e.g `sq.ctrl.EndpointCtrl`.
+bases:
+- sq.ctrl.EndpointCtrl
+
+
+# This list specifies the HTTP methods that the controller
+# "" should implement. Corresponding methods
+# are added to the base class according to these values, e.g.
+# get(), post(), etc.
+methods:
+- POST
+
+
+# A list containing dependencies from the inversion-of-control
+# container that should be added to the base class as class
+# properties. The elements in this list are mappings and must
+# have the following structure:
+#
+#   require: the name of the dependency
+#   desc: a description of this dependency and how it is
+#     used by the controller. This member is optional.
+#   attname: the name of the attribute on the controller class.
+#
+# Make sure that all dependencies listed here are injected either
+# programmatically or using the configuration files in the
+# ./etc/ioc.conf.d directory.
+dependencies:
+- require: ChallengeService
+  attname: service
