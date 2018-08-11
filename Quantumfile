@@ -49,6 +49,9 @@ environ:
   - name: SECRET_KEY
     default: b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657
     comment: Not for production use!
+  - name: DEBUG
+    default: '1'
+    type: "switch"
   - name: RDBMS_DSN
     default: postgresql+psycopg2://challenger:challenger@rdbms:5432/challenger
   - name: HTTP_ADDR
