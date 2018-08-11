@@ -14,7 +14,10 @@ class BaseChallengeRepository(Repository):
     def delete(self, using, sender, recipient):
         raise NotImplementedError("Subclasses must override this method.")
 
-    def get(self, get):
+    def get(self, dto):
+        raise NotImplementedError("Subclasses must override this method.")
+
+    def persist_dao(self, dao):
         raise NotImplementedError("Subclasses must override this method.")
 
 
