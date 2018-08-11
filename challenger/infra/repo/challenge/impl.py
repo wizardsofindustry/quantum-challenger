@@ -69,4 +69,13 @@ class ChallengeRepository(BaseChallengeRepository):
             .first()
 
     def delete(self, using, sender, recipient):
-        raise NotImplementedError("Subclasses must override this method.")
+        """Deletes the challenge identified by `using`, `sender` and
+        `recipient` from the persistent storage backend.
+        """
+        Relation = self.models[using]
+        self.session.query(Relation)\
+            .filter(Relation.using == using)\
+            .filter(Relation.sender == sender)\
+            .filter(Relation.recipient == recipient)\
+            .delete()
+        self.session.flush()

@@ -49,13 +49,15 @@ class ChallengeService(BaseChallengeService):
         """
         dao = self.repo.get(dto)
         if dao is None:
-            return False
+            return self.dto(success=False, attempts=None)
 
         is_valid = hmac.compare_digest(dto.code, dao.code)
         if not is_valid:
             assert isinstance(dao.attempts, int)
             dao.attempts += 1
             self.repo.persist_dao(dao)
+        else:
+            self.repo.delete(dao.using, dao.sender, dao.recipient)
 
         return self.dto(success=is_valid, attempts=dao.attempts)
 
