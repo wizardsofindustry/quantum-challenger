@@ -1,7 +1,12 @@
+"""Declares :class:`TextMessageService`."""
 from .base import BaseTextMessageService
 
 
 class TextMessageService(BaseTextMessageService):
+    """Exposes an interface to send Short Message Service (SMS)
+    messages.
+    """
 
     def send(self, sender, recipient, message):
-        raise NotImplementedError("Subclasses must override this method.")
+        """Send a SMS message to the specified `recipient`."""
+        pass
