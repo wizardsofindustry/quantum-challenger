@@ -27,6 +27,14 @@ class PhonenumberChallenge(Relation):
         nullable=False
     )
 
+    #: The date/time at which the challenge expires, in milliseconds since
+    #: the UNIX epoch.
+    expires = sqlalchemy.Column(
+        sqlalchemy.BigInteger,
+        name='expires',
+        nullable=False
+    )
+
     #: The delivery mechanism of the challenge confirmation code.
     using = sqlalchemy.Column(
         sqlalchemy.String,
@@ -39,6 +47,14 @@ class PhonenumberChallenge(Relation):
     code = sqlalchemy.Column(
         sqlalchemy.String,
         name='code',
+        nullable=False
+    )
+
+    #: The content of the message sent to the recipient. This may be used
+    #: to retry the challenge.
+    message = sqlalchemy.Column(
+        sqlalchemy.String,
+        name='message',
         nullable=False
     )
 
