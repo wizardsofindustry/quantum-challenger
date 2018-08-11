@@ -31,7 +31,6 @@ class TextMessageChallenge(sq.schema.Schema):
     #: issue a new challenge, then only the confirmation code will be
     #: sent.
     message = sq.schema.fields.String(
-        required=True,
         allow_none=True
     )
 
