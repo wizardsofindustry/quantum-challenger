@@ -2,7 +2,7 @@
 # General project information.
 project:
   version: 1.0.0
-  name: No project name specified
+  name: Challenger Verification Service (CVS)
 
 # This section specifies additional properties of the deployment
 # environment for the challenger service.
@@ -48,16 +48,29 @@ environ:
   variables:
   - name: SECRET_KEY
     default: b9d3fc670302b2191fd341814ee98a13ec2070657f816cf2f93d2dc282277657
-    comment: Not for production use!
+    comment: Symmetric key for cryptographic operations.
   - name: DEBUG
     default: '1'
     type: "switch"
+    comment: Run the application in debug mode.
+  - name: IOC_DEFAULTS
+    default: /etc/challenger/ioc.conf
+    comments: >
+      Specifies the configuration file holding defaults for the inversion-of-control
+      context.
+  - name: IOC_DIR
+    default: /etc/challenger/ioc.conf.d/
+    comments: >
+      Specifies a directory where the application will look for inversion-of-control
+      configuration files.
   - name: RDBMS_DSN
     default: postgresql+psycopg2://challenger:challenger@rdbms:5432/challenger
   - name: HTTP_ADDR
     default: '0.0.0.0'
+    comment: Listen address for the HTTP interface.
   - name: HTTP_PORT
     default: '8443'
+    comment: Bind port for the HTTP interface.
   - name: MESSAGEBIRD_ACCESS_KEY
     default: ""
     type: "literal"

@@ -99,16 +99,6 @@ pipeline {
       }
     }
 
-    stage('Lint') {
-      steps {
-        script {
-          image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
-            sh 'SQ_TESTING_PHASE=lint ./bin/run-tests'
-          }
-        }
-      }
-    }
-
     stage('Run unit tests') {
       steps {
         script {

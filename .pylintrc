@@ -13,4 +13,4 @@ notes=
 
 
 [MESSAGES CONTROL]
-disable=abstract-method,invalid-name
+disable=abstract-method,invalid-name,bad-continuation
