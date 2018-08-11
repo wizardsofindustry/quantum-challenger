@@ -9,6 +9,6 @@ class VerifyCtrl(BaseVerifyCtrl):
         """Verifies the code provided in the request entity for the specified
         sender and recipient.
         """
-        status_code = 200 if self.service.verify(request.payload)\
-            else 403
-        return self.render_to_response(ctx={}, status_code=status_code)
+        return self.render_to_response(
+            ctx=self.service.verify(request.payload),
+            status_code=200)
