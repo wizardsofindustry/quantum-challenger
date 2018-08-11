@@ -21,7 +21,7 @@ app:
 
   # Indicates that the application requires a relational database systen. Quantum
   # services are assumed to connect to one RDBMS only.
-  rdbms: false
+  rdbms: true
 
   # Specifies the roles that the application has. Valid values are
   # 'http', 'handler', 'runner', 'listener' or 'scheduler'.
