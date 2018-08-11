@@ -48,7 +48,8 @@ class ChallengeService(BaseChallengeService):
         code that was persistent for the sender and recipient.
         """
         dao = self.repo.get(dto)
-        return hmac.compare_digest(dto.code, dao.code)
+        return hmac.compare_digest(dto.code, dao.code)\
+            if dao is not None else False
 
     def _retry_sms(self, dto):
         dao = self.repo.get(dto.using, dto.recipient)
