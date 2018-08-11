@@ -81,7 +81,13 @@ methods:
   doc: null
 - name: get
   parameters:
-  - name: get
+  - name: dto
+  args: no
+  kwargs: no
+  doc: null
+- name: persist_dao
+  parameters:
+  - name: dao
   args: no
   kwargs: no
   doc: null
