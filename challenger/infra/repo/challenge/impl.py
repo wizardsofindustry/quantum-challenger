@@ -50,5 +50,16 @@ class ChallengeRepository(BaseChallengeRepository):
             .where(Relation.recipient == recipient)
         return self.session.query(query).scalar()
 
+    def get(self, dto):
+        """Return a Data Access Object (DAO) based on the delivery method,
+        sender and recipient specified in `dto`.
+        """
+        assert dto.using in list(self.models.keys())
+        Relation = self.models[dto.using]
+        return self.session.query(Relation)\
+            .filter(Relation.sender == dto.sender)\
+            .filter(Relation.recipient == dto.recipient)\
+            .first()
+
     def delete(self, using, sender, recipient):
         raise NotImplementedError("Subclasses must override this method.")
