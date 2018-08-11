@@ -70,6 +70,41 @@ paths:
         default:
           $ref: "#/components/responses/UncaughException"
 
+  /verify:
+    summary: Verify a challenge sent to a recipient.
+    x-endpoint:
+      classname: VerifyEndpoint
+      controller:
+        qualname: VerifyCtrl
+    post:
+      operationId: verify
+      summary: >
+        Determine if the challenge code for the sender and recipient specified
+        in the request entity is valid.
+      requestBody:
+        description: >
+          Identifies the challenge that was sent and its verification code.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Verification"
+      responses:
+        200:
+          description: >
+            The code provided in the request entity was valid for the specified
+            sender and recipient.
+        403:
+          description: >
+            The code provided in the request entity is not valid for the
+            specified sender and recipient.
+        422:
+          description: >
+            The structure of the entity enclosed in the request body is invalid.
+        503:
+          $ref: "#/components/responses/ServiceNotAvailable"
+        default:
+          $ref: "#/components/responses/UncaughException"
+
   /challenge:
     summary: Set a challenge code using the channel specified in the request URI.
     x-endpoint:
@@ -96,6 +131,9 @@ paths:
         409:
           description: >
             A challenge exists for the specified phonenumber or email address.
+        422:
+          description: >
+            The structure of the entity enclosed in the request body is invalid.
         503:
           $ref: "#/components/responses/ServiceNotAvailable"
         default:
@@ -107,7 +145,8 @@ paths:
         recipient. Invoking this method will reset the `ttl` value.
       requestBody:
         description: >
-          Specifies the parameters for the challenge sent to the recipient.
+          Specifies the parameters for the challenge sent to the recipient. Note that
+          for this request method, the `message` parameter may be omitted.
         content:
           application/json:
             schema:
@@ -120,6 +159,9 @@ paths:
         404:
           description: >
             No challenge exists for the specified phonenumber or email address.
+        422:
+          description: >
+            The structure of the entity enclosed in the request body is invalid.
         503:
           $ref: "#/components/responses/ServiceNotAvailable"
         default:
@@ -153,12 +195,6 @@ components:
       - sender
       - message
       properties:
-        recipient:
-          description: >
-            The phonenumber to challenge, in ITU-T E.164 format.
-          type: string
-          format: phonenumber
-          nullable: false
         sender:
           description: >
             The sender of the challenge; this will be displayed in the user
@@ -167,13 +203,21 @@ components:
             of only numeric characters, the maximum length is `18`.
           type: string
           nullable: false
+        recipient:
+          description: >
+            The phonenumber to challenge, in ITU-T E.164 format.
+          type: string
+          format: phonenumber
+          nullable: false
         message:
           description: >
             The message to send to the phonenumber. For SMS challenges, this may
             not exceed 140 characters and MUST contain the text `{code}`, which
             will be replaced with a random string consisting of six numeric
-            characters.
+            characters. If `message` is null and this object is used to issue
+            a new challenge, then only the confirmation code will be sent.
           type: string
+          nullable: true
 
     Challenge:
       description: >
@@ -181,7 +225,7 @@ components:
         selected delivery mechanism.
       type: object
       example:
-        using: text
+        using: sms
         ttl: 86400000
         sender: "Challenger"
         recipient: "+31612345678"
@@ -210,6 +254,37 @@ components:
           type: integer
           format: int64
           default: 86400000
+
+    Verification:
+      description: >
+        Describes a request to verify the confirmation code for a given
+        sender and recipient.
+      type: object
+      example:
+        using: sms
+        sender: Quantum
+        recipient: "+31612345678"
+        code: "123456"
+      nullable: false
+      required:
+      - sender
+      - recipient
+      - code
+      properties:
+        sender:
+          description: >
+            The sender of the challenge; this will be displayed in the user
+            device if the delivery mechanism is SMS. If `sender` consists of
+            alphanumeric characters, its maximum length is `11`. If it consists
+            of only numeric characters, the maximum length is `18`.
+          type: string
+          nullable: false
+        recipient:
+          description: >
+            The phonenumber to challenge, in ITU-T E.164 format.
+          type: string
+          format: phonenumber
+          nullable: false
 
     Version:
       type: object
