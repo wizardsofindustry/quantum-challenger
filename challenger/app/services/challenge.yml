@@ -91,6 +91,8 @@ methods:
 dependencies:
 - require: ChallengeRepository
   attname: repo
+- require: TextMessageService
+  attname: sms
 
 
 # Specifies exception classes that the service will declare.
@@ -118,3 +120,8 @@ exceptions:
   doc: >
     Raises when the client issues a challenge retry for a recipient,
     but no challenge exists for it.
+- name: InvalidDeliveryChannel
+  base: sq.exceptions.UnprocessableEntity
+  doc: >
+    Raises when the client specified an invalid delivery mechanism
+    for the challenge.

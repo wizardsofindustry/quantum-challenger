@@ -11,7 +11,13 @@ case $CHALLENGER_RUNTIME in
   noop)
     break
   ;;
+  http)
+    export CHALLENGER_COMPONENTS="http"
+    python3 -m challenger.runtime -c $CHALLENGER_CONFIG_FILE
+    break
+  ;;
   service)
     python3 -m challenger.runtime -c $CHALLENGER_CONFIG_FILE
+    break
   ;;
 esac
