@@ -276,7 +276,15 @@ components:
       - sender
       - recipient
       - code
+      - using
       properties:
+        using:
+          description: >
+            Specifies the delivery mechanism for the challenge.
+          type: string
+          enum:
+          - voice
+          - sms
         sender:
           description: >
             The sender of the challenge; this will be displayed in the user
@@ -290,6 +298,11 @@ components:
             The phonenumber to challenge, in ITU-T E.164 format.
           type: string
           format: phonenumber
+          nullable: false
+        code:
+          description: >
+            The secret code that may be used to verify the phonenumber.
+          type: string
           nullable: false
 
     Version:
