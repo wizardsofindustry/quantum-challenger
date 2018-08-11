@@ -1,0 +1,314 @@
+---
+#######################################################################
+# OpenAPI definition for the  application.
+#
+# NOTES:
+#
+# - Endpoints are configured with the `x-endpoint` attribute.
+# - Schema definitions of `requestBody`, for any content type,
+#   is assumed to be defined in `components` and referenced.
+#
+#######################################################################
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: Challenger Verification Service
+  description: >
+    The Challenger Verification Service (CVS) provides an API to send
+    confirmation codes to phonenumbers (sms/voice) and email addresses.
+  termsOfService: TOS
+  contact:
+    name: Cochise Ruhulessin
+    url: https://www.wizardsofindustry.net
+    email: cochise.ruhulessin@wizardsofindustry.net
+  license:
+    name: MIT
+paths:
+  /health/:
+    summary: Reports the general health of the application.
+    x-endpoint:
+      classname: HealthEndpoint
+      controller:
+        qualname: sq.ext.health.HealthCheckCtrl
+    parameters:
+    - name: timeout
+      in: query
+      description: Specifies the timeout of the health-check, in milliseconds.
+      schema:
+        type: integer
+    get:
+      operationId: get_health
+      responses:
+        200:
+          description: The service is functioning normally.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+        503:
+          $ref: "#/components/responses/ServiceNotAvailable"
+        default:
+          $ref: "#/components/responses/UncaughException"
+
+  /version:
+    summary: Reports the currently running version of the application.
+    x-endpoint:
+      classname: VersionEndpoint
+      controller:
+        qualname: sq.ext.health.VersionCtrl
+    get:
+      operationId: get_version
+      responses:
+        200:
+          description: Details about the current application deployment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Version"
+        503:
+          $ref: "#/components/responses/ServiceNotAvailable"
+        default:
+          $ref: "#/components/responses/UncaughException"
+
+  /challenge:
+    summary: Set a challenge code using the channel specified in the request URI.
+    x-endpoint:
+      classname: ChallengeEndpoint
+      controller:
+        qualname: ChallengeCtrl
+    post:
+      operationId: challenge
+      summary: >
+        Send a challenge code over the specified channel, to an unchallenged
+        recipient.
+      requestBody:
+        description: >
+          Specifies the parameters for the challenge sent to the recipient.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Challenge"
+      responses:
+        202:
+          description: >
+            A new challenge is created and queued for tranmission to the
+            receiver.
+        409:
+          description: >
+            A challenge exists for the specified phonenumber or email address.
+        503:
+          $ref: "#/components/responses/ServiceNotAvailable"
+        default:
+          $ref: "#/components/responses/UncaughException"
+    put:
+      operationId: retry
+      summary: >
+        Send a challenge code over the specified channel, to an already challenged
+        recipient. Invoking this method will reset the `ttl` value.
+      requestBody:
+        description: >
+          Specifies the parameters for the challenge sent to the recipient.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Challenge"
+      responses:
+        202:
+          description: >
+            A new challenge is created and queued for tranmission to the
+            receiver.
+        404:
+          description: >
+            No challenge exists for the specified phonenumber or email address.
+        503:
+          $ref: "#/components/responses/ServiceNotAvailable"
+        default:
+          $ref: "#/components/responses/UncaughException"
+
+components:
+  responses:
+    ServiceNotAvailable:
+      description: One or more (upstream) dependencies is not available.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ServiceNotAvailable"
+
+    UncaughException:
+      description: An uncaught exception condition interrupted the request-response cycle.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    TextMessageChallenge:
+      description: >
+        Describes a request to challenge the phonenumber specified in
+        the entity.
+      type: object
+      nullable: false
+      required:
+      - recipient
+      - sender
+      - message
+      properties:
+        recipient:
+          description: >
+            The phonenumber to challenge, in ITU-T E.164 format.
+          type: string
+          format: phonenumber
+          nullable: false
+        sender:
+          description: >
+            The sender of the challenge; this will be displayed in the user
+            device if the delivery mechanism is SMS. If `sender` consists of
+            alphanumeric characters, its maximum length is `11`. If it consists
+            of only numeric characters, the maximum length is `18`.
+          type: string
+          nullable: false
+        message:
+          description: >
+            The message to send to the phonenumber. For SMS challenges, this may
+            not exceed 140 characters and MUST contain the text `{code}`, which
+            will be replaced with a random string consisting of six numeric
+            characters.
+          type: string
+
+    Challenge:
+      description: >
+        Issue a challenge to the recipient specified in the entity, using the
+        selected delivery mechanism.
+      type: object
+      example:
+        using: text
+        ttl: 86400000
+        sender: "Challenger"
+        recipient: "+31612345678"
+        message: "Your Challenger confirmation code is: {code}"
+      nullable: false
+      oneOf:
+      - $ref: "#/components/schemas/TextMessageChallenge"
+      discriminator:
+        propertyName: using
+        mapping:
+          sms: "#/components/schemas/TextMessageChallenge"
+      required:
+      - using
+      properties:
+        using:
+          description: >
+            Specifies the delivery mechanism for the challenge.
+          type: string
+          enum:
+          - voice
+          - sms
+        ttl:
+          description: >
+            Specifies the time-to-live after which the challenge expires,
+            in milliseconds.
+          type: integer
+          format: int64
+          default: 86400000
+
+    Version:
+      type: object
+      nullable: false
+      example:
+        version: "1.0.2"
+      required:
+      - version
+      properties:
+        version:
+          description: >
+            The application version that is currently running.
+          type: string
+
+    Health:
+      type: object
+      nullable: false
+      example:
+        started: 1528573407847
+        uptime: 65293
+      required:
+      - started
+      - uptime
+      properties:
+        started:
+          description: >
+            Indicates the date and time at which the application instance was
+            started, in milliseconds since the UNIX epoch.
+          type: integer
+          format: int64
+        uptime:
+          description: >
+            Current application instance lifetime, in milliseconds.
+          type: integer
+          format: int64
+
+    Error:
+      type: object
+      nullable: false
+      example:
+        code: "INTERNAL_SERVER_ERROR"
+        detail: "An uncaught exception condition interrupted the request-response cycle."
+        hint: "Contact the system administrator if the condition persists."
+        id: "67dfd969-98ac-4057-b992-92e19f6ea7ac"
+      required:
+      - code
+      - message
+      properties:
+        code:
+          description: >
+            Specifies the exception condition that occurred.
+          type: string
+        message:
+          description: >
+            Error message targeted at the end-user.
+          type: string
+        detail:
+          description: >
+            A message providing a more detailed explanation of the error
+            condition that occurred.
+          type: string
+        hint:
+          description: >
+            A hint indicating on how to resolve the situation.
+          type: string
+        id:
+          description: >
+            An identifier for this specific exception condition, which may be used
+            for debugging purposes.
+          type: string
+          format: uuid
+
+    ServiceNotAvailable:
+      type: object
+      nullable: false
+      example:
+        code: "SERVICE_NOT_AVAILABLE"
+        detail: "The service is currently not available. Try again later."
+        hint: "Cease making requests until after the period indicated in the Retry-After header."
+      required:
+      - code
+      - message
+      - detail
+      - hint
+      properties:
+        code:
+          description: >
+            Specifies the cause of service unavailability.
+          type: string
+        message:
+          description: >
+            Error message targeted at the end-user.
+          type: string
+        detail:
+          description: >
+            A message providing a more detailed explanation of the reasons
+            why the service is not available.
+          type: string
+        hint:
+          description: >
+            A hint indicating on how to resolve the situation.
+          type: string
