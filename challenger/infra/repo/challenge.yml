@@ -66,6 +66,7 @@ methods:
 - name: exists
   parameters:
   - name: using
+  - name: sender
   - name: recipient
   args: no
   kwargs: no
@@ -73,6 +74,7 @@ methods:
 - name: delete
   parameters:
   - name: using
+  - name: sender
   - name: recipient
   args: no
   kwargs: no

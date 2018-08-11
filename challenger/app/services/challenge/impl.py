@@ -30,7 +30,7 @@ class ChallengeService(BaseChallengeService):
         assert dto.using == 'sms'
         dto['code'] = self._generate_code()
         dto['message'] = dto.message.format(code=dto.code)
-        if self.repo.exists(dto.using, dto.recipient):
+        if self.repo.exists(dto.using, dto.sender, dto.recipient):
             self._on_duplicate_challenge(dto)
         self.repo.persist(dto)
         self.sms.send(sender=dto.sender, recipient=dto.recipient,

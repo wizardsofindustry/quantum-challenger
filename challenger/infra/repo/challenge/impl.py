@@ -28,6 +28,7 @@ class ChallengeRepository(BaseChallengeRepository):
     def _persist_voice(self, dto):
         now = quantum.lib.timezone.now()
         dao = self.models[dto.using](
+            sender=dto.sender,
             recipient=dto.recipient,
             challenged=now,
             expires=now + dto.ttl,
@@ -39,14 +40,15 @@ class ChallengeRepository(BaseChallengeRepository):
         self.session.add(dao)
         self.session.flush()
 
-    def exists(self, using, recipient):
+    def exists(self, using, sender, recipient):
         """Return a boolean indicating if a challenge over the delivery
         mechanism `using` exists for the specified `recipient`.
         """
         Relation = self.models[using]
         query = sqlalchemy.exists()\
+            .where(Relation.sender == sender)\
             .where(Relation.recipient == recipient)
         return self.session.query(query).scalar()
 
-    def delete(self, using, recipient):
+    def delete(self, using, sender, recipient):
         raise NotImplementedError("Subclasses must override this method.")
