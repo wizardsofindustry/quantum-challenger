@@ -4,6 +4,9 @@ export CHALLENGER_CONFIG_FILE=${CHALLENGER_CONFIG_FILE-/etc/challenger/challenge
 
 
 case $CHALLENGER_RUNTIME in
+  migrations)
+    alembic upgrade head
+  ;;
   shell)
     ./bin/shell
     break
