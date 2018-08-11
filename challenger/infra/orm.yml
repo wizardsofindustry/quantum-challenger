@@ -6,7 +6,7 @@ relations:
     Maintains information about verification challenges sent to
     a (mobile) phonenumber.
   columns:
-  - name: phonenumber
+  - name: recipient
     type: string
     primary_key: true
     description: >
