@@ -1,0 +1,116 @@
+#######################################################################
+#
+# REPOSITORY DEFINITION FOR CHALLENGEREPOSITORY
+#
+# The definition provided in this file is used by SG to compile a
+# base class for the ChallengeRepository repository. A the Repository
+# classes abstract the persisting of domain objects from the concrete
+# infrastructure implementation. For a detailed explanation of
+# configuration values, refer to the comments below.
+#
+# The repository specified in this file will be compiled in the
+# following Python module:
+#
+#   challenger.infra.repo.challenge
+#
+# To create the implementation for this repository, edit its
+# module at:
+#
+#   ./challenger/infra/repo/challenge/impl.py
+#
+#######################################################################
+
+# Specifies the name of the repository class. This value is also used
+# to generate a module name, amongst other uses. Therefor, for correct
+# operation of the SG compiler, this SHOULD NOT be changed.
+name: ChallengeRepository
+
+
+# Defines the repository implementation(s) that are used by the
+# ChallengeRepository base class. It may also be used to inherit
+# from mixin classes. The elements are qualified names to Python
+# symbols e.g `sq.persistence.Repository`.
+bases:
+- sq.persistence.Repository
+
+
+# This list specifies the methods that the repository class publicly
+# exposes. See the example below.
+#
+# methods:
+# - name: my_method_name
+#   parameters:
+#   - name: foo
+#   - name: bar
+#     default: None
+#   args: true
+#   kwargs: true
+#   doc:
+#     heading: >
+#       This is the opening line of the docstring for the
+#       my_method_name repository method. It is rendered before
+#       the args block.
+#     returns: >
+#       The return value. See the Napoleon documentation.
+#
+# Note that parameters are compiled in the order they were defined,
+# but parameters with defaults will always come after defaultless
+# parameters in the method signature.
+methods:
+- name: persist
+  parameters:
+  - name: dto
+  args: no
+  kwargs: no
+  doc: null
+- name: exists
+  parameters:
+  - name: using
+  - name: recipient
+  args: no
+  kwargs: no
+  doc: null
+- name: delete
+  parameters:
+  - name: using
+  - name: recipient
+  args: no
+  kwargs: no
+  doc: null
+
+
+# A list containing dependencies from the inversion-of-control
+# container that should be added to the base class as class
+# properties. The elements in this list are mappings and must
+# have the following structure:
+#
+#   require: the name of the dependency
+#   desc: a description of this dependency and how it is
+#     used by the repository. This member is optional.
+#   attname: the name of the attribute on the repository class.
+#
+# Make sure that all dependencies listed here are injected either
+# programmatically or using the configuration files in the
+# ./etc/ioc.conf.d directory.
+dependencies:
+- require: DatabaseSessionFactory
+  attname: session
+  desc: >
+    The database session used to persist Data Access
+    Objects (DAOs).
+
+
+# Specifies exception classes that the repository will declare.
+#
+# Example:
+#
+# exceptions:
+# - name: MyCustomException
+#   base: sq.exceptions.ObjectDoesNotExist
+#   doc: >
+#     This exception is raised when an object that the repository is
+#     trying to lookup does not exist.
+#
+# If the `base` attribute is not defined, then the exception inherits
+# from Exception.
+exceptions: []
