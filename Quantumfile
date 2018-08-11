@@ -54,6 +54,9 @@ environ:
   - name: HTTP_PORT
     default: '8443'
   - name: MESSAGEBIRD_ACCESS_KEY
+    default: ""
+    type: "literal"
+
 
 # The application is currently not configured as an event listener. To
 # enable this feature, add the 'listener' role to the #/app/roles list.
