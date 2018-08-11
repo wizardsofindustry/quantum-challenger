@@ -1,0 +1,107 @@
+#######################################################################
+#
+# SERVICE DEFINITION FOR TEXTMESSAGESERVICE
+#
+# The definition provided in this file is used by SG to compile a
+# base class for the TextMessageService service. For a
+# detailed explanation of configuration values, refer to the
+# comments below.
+#
+# The service specified in this file will be compiled in the
+# following Python module:
+#
+#   challenger.app.services.textmessage
+#
+# To create the implementation for this service, edit its
+# module at:
+#
+#   ./challenger/app/services/textmessage/impl.py
+#
+#######################################################################
+
+# Specifies the name of the service class. This value is also used
+# to generate a module name, amongst other uses. Therefor, for correct
+# operation of the SG compiler, this SHOULD NOT be changed.
+name: TextMessageService
+
+
+# Specifies the service layer. The SG identifies three types of services:
+# application (app), domain and infrastructure (infra).
+layer: app
+
+
+# Defines the service implementation(s) that are used by the
+# TextMessageService base class. It may also be used to inherit
+# from mixin classes. The elements are qualified names to Python
+# symbols e.g `sq.service.Service`.
+bases:
+- sq.service.Service
+
+
+# This list specifies the methods that the service class publicly
+# exposes. See the example below.
+#
+# methods:
+# - name: my_method_name
+#   parameters:
+#   - name: foo
+#   - name: bar
+#     default: None
+#   args: true
+#   kwargs: true
+#   doc:
+#     heading: >
+#       This is the opening line of the docstring for the
+#       my_method_name service method. It is rendered before
+#       the args block.
+#     returns: >
+#       The return value. See the Napoleon documentation.
+#
+# Note that parameters are compiled in the order they were defined,
+# but parameters with defaults will always come after defaultless
+# parameters in the method signature.
+methods:
+- name: send
+  parameters:
+  - name: sender
+  - name: recipient
+  - name: message
+  args: no
+  kwargs: no
+  doc: null
+
+
+# A list containing dependencies from the inversion-of-control
+# container that should be added to the base class as class
+# properties. The elements in this list are mappings and must
+# have the following structure:
+#
+#   require: the name of the dependency
+#   desc: a description of this dependency and how it is
+#     used by the service. This member is optional.
+#   attname: the name of the attribute on the service class.
+#
+# Make sure that all dependencies listed here are injected either
+# programmatically or using the configuration files in the
+# ./etc/ioc.conf.d directory.
+dependencies:
+- require: RequestFactory
+  attname: http
+  desc: >
+    An object that exposes an interface to create HTTP requests.
+
+
+# Specifies exception classes that the service will declare.
+#
+# Example:
+#
+# exceptions:
+# - name: MyCustomException
+#   base: sq.exceptions.ObjectDoesNotExist
+#   doc: >
+#     This exception is raised when an object that the service is
+#     trying to lookup does not exist.
+#
+# If the `base` attribute is not defined, then the exception inherits
+# from Exception.
+exceptions: []
