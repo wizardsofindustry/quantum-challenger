@@ -16,6 +16,11 @@ relations:
     description: >
       The date/time at which the challenge was sent, in milliseconds since
       the UNIX epoch.
+  - name: expires
+    type: int64
+    description: >
+      The date/time at which the challenge expires, in milliseconds since
+      the UNIX epoch.
   - name: using
     type: string
     description: >
@@ -25,6 +30,11 @@ relations:
     description: >
       A shared secret that may be used to verify access to the specified
       phonenumber.
+  - name: message
+    type: string
+    description: >
+      The content of the message sent to the recipient. This may be used
+      to retry the challenge.
   - name: attempts
     type: int32
     description: >
