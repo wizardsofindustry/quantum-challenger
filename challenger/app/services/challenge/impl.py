@@ -23,13 +23,13 @@ class ChallengeService(BaseChallengeService):
         """Issue a challenge to the specified recipient."""
         if dto.using not in self.valid_mechanims:
             self._on_invalid_delivery_mechanism(dto)
-        assert '{code}' in dto.message
         return getattr(self, f'_challenge_{dto.using}')(dto)
 
     def _challenge_sms(self, dto):
         assert dto.using == 'sms'
         dto['code'] = self._generate_code()
-        dto['message'] = dto.message.format(code=dto.code)
+        dto['message'] = dto.message.format(code=dto.code)\
+            if dto.get('message') else str(dto.code)
         if self.repo.exists(dto.using, dto.sender, dto.recipient):
             self._on_duplicate_challenge(dto)
         self.repo.persist(dto)
