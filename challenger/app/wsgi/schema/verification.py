@@ -9,6 +9,12 @@ class Verification(sq.schema.Schema):
     sender and recipient.
     """
 
+    #: Specifies the delivery mechanism for the challenge.
+    using = sq.schema.fields.String(
+        required=True,
+        allow_none=False
+    )
+
     #: The sender of the challenge; this will be displayed in the user
     #: device if the delivery mechanism is SMS. If `sender` consists of
     #: alphanumeric characters, its maximum length is `11`. If it consists
@@ -20,6 +26,12 @@ class Verification(sq.schema.Schema):
 
     #: The phonenumber to challenge, in ITU-T E.164 format.
     recipient = sq.schema.fields.Phonenumber(
+        required=True,
+        allow_none=False
+    )
+
+    #: The secret code that may be used to verify the phonenumber.
+    code = sq.schema.fields.String(
         required=True,
         allow_none=False
     )
