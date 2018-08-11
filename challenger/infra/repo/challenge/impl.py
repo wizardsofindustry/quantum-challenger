@@ -22,6 +22,13 @@ class ChallengeRepository(BaseChallengeRepository):
         assert dto.using in list(self.models.keys())
         return getattr(self, f'_persist_{dto.using}')(dto)
 
+    def persist_dao(self, dao):
+        """Persists (updates) a modified Data Access Object (DAO) that we retrieved
+        from the persistent storage backend earlier.
+        """
+        self.session.merge(dao)
+        self.session.flush()
+
     def _persist_sms(self, dto):
         return self._persist_voice(dto)
 
