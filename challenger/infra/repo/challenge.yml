@@ -79,6 +79,12 @@ methods:
   args: no
   kwargs: no
   doc: null
+- name: get
+  parameters:
+  - name: get
+  args: no
+  kwargs: no
+  doc: null
 
 
 # A list containing dependencies from the inversion-of-control
