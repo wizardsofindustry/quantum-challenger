@@ -12,9 +12,9 @@ class PhonenumberChallenge(Relation):
     __tablename__ = 'phonenumberchallenges'
 
     #: Specifies the phonenumber to which the challenge was sent.
-    phonenumber = sqlalchemy.Column(
+    recipient = sqlalchemy.Column(
         sqlalchemy.String,
-        name='phonenumber',
+        name='recipient',
         primary_key=True,
         nullable=False
     )
