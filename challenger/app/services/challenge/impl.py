@@ -3,8 +3,6 @@ import hmac
 import secrets
 import string
 
-from sq.lib import timezone
-
 import challenger.environ
 from .base import BaseChallengeService
 
@@ -14,10 +12,11 @@ class ChallengeService(BaseChallengeService):
     phonenumbers and email addresses.
     """
     valid_mechanims = ('voice', 'sms')
+    code_charset = string.digits
 
     def _generate_code(self):
         """Generates a random numeric string consisting of six characters."""
-        return ''.join([secrets.choice(string.digits) for x in range(6)])\
+        return ''.join([secrets.choice(self.code_charset) for x in range(6)])\
             if not challenger.environ.DEBUG else '123456'
 
     def challenge(self, dto):
@@ -64,11 +63,11 @@ class ChallengeService(BaseChallengeService):
     def _retry_sms(self, dto):
         dao = self.repo.get(dto.using, dto.recipient)
         if dao is None:
-            self._on_recipient_not_challenged()
+            self._on_recipient_not_challenged(dto)
         self.sms.send(sender=dao.sender, recipient=dao.recipient,
             message=dao.message)
 
-    def _on_duplicate_challenge(self, dto):
+    def _on_duplicate_challenge(self, dto): #pylint: disable=unused-argument
         raise self.AlreadyChallenged()
 
     def _on_recipient_not_challenged(self, dto):
