@@ -16,8 +16,7 @@ class ChallengeService(BaseChallengeService):
 
     def _generate_code(self):
         """Generates a random numeric string consisting of six characters."""
-        return ''.join([secrets.choice(self.code_charset) for x in range(6)])\
-            if not challenger.environ.DEBUG else '123456'
+        return ''.join([secrets.choice(self.code_charset) for x in range(6)])
 
     def challenge(self, dto):
         """Issue a challenge to the specified recipient."""
@@ -35,6 +34,7 @@ class ChallengeService(BaseChallengeService):
         self.repo.persist(dto)
         self.sms.send(sender=dto.sender, recipient=dto.recipient,
             message=dto.message)
+        return self.dto(code=dto.code)
 
     def retry(self, dto):
         """Retry a challenge for the specified recipient."""

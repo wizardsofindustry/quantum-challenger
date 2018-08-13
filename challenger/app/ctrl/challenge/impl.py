@@ -18,8 +18,7 @@ class ChallengeCtrl(BaseChallengeCtrl):
         """Create a new challenge to the recipient specified in the
         request entity.
         """
-        self.service.challenge(request.payload)
-        return self.render_to_response(ctx={}, status_code=202)
+        return 202, self.service.challenge(request.payload)
 
     async def put(self, request, *args, **kwargs):
         """Re-issue a challenge to the recipient specified in the
