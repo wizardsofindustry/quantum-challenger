@@ -7,6 +7,13 @@ class ChallengeCtrl(BaseChallengeCtrl):
     to the ``/challenge`` endpoint.
     """
 
+    def validate_payload(self, request, payload):
+        """Validates the payload enclosed with the request."""
+        if '{code}' not in payload.message:
+            self.unprocessable(errors={
+                'message': "The message must contain the '{code}' replacement token."
+            })
+
     async def post(self, request, *args, **kwargs):
         """Create a new challenge to the recipient specified in the
         request entity.

@@ -39,7 +39,8 @@ package:
 
   # Python module requirements from PyPi. Specified as in a requirements.txt,
   # file.
-  requirements: []
+  requirements:
+  - phonenumbers==8.9.10
 
 
 # Application environment settings and variables.
