@@ -2,6 +2,7 @@ FROM wizardsofindustry/quantum:latest
 
 RUN mkdir /var/lib/challenger
 RUN mkdir /var/spool/aorta
+RUN pip3 install phonenumbers==8.9.10
 
 COPY . /app
 COPY etc/ /etc/challenger/
