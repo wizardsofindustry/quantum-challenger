@@ -159,7 +159,7 @@ pipeline {
             writeFile file: ".coverage.unit.${env.BUILD_ID}", text: "${coverage_unit}"
             writeFile file: ".coverage.integration.${env.BUILD_ID}", text: "${coverage_integration}"
             writeFile file: ".coverage.system.${env.BUILD_ID}", text: "${coverage_system}"
-            sh 'coverage combine . && coverage report --fail-under 0'
+            sh 'coverage combine . && coverage report --fail-under 100'
           }
         }
       }

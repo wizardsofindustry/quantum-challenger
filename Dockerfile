@@ -5,7 +5,6 @@ RUN mkdir /var/spool/aorta
 
 COPY . /app
 COPY etc/ /etc/challenger/
-COPY .pylintrc /app/
 
 WORKDIR /app
 RUN python3 setup.py install
