@@ -2,7 +2,7 @@
 
 # Ignore members from the sq library, since some of them are dynamically
 # generated which causes pylint to complain.
-generated-members=sq.*
+generated-members=sq.*,quantum.*
 
 
 [MISCELLANEOUS]
@@ -13,4 +13,4 @@ notes=
 
 
 [MESSAGES CONTROL]
-disable=abstract-method,invalid-name
+disable=abstract-method,invalid-name,bad-continuation

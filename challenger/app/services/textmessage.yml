@@ -1,40 +1,44 @@
 #######################################################################
 #
-# REPOSITORY DEFINITION FOR CHALLENGEREPOSITORY
+# SERVICE DEFINITION FOR TEXTMESSAGESERVICE
 #
 # The definition provided in this file is used by SG to compile a
-# base class for the ChallengeRepository repository. A the Repository
-# classes abstract the persisting of domain objects from the concrete
-# infrastructure implementation. For a detailed explanation of
-# configuration values, refer to the comments below.
+# base class for the TextMessageService service. For a
+# detailed explanation of configuration values, refer to the
+# comments below.
 #
-# The repository specified in this file will be compiled in the
+# The service specified in this file will be compiled in the
 # following Python module:
 #
-#   challenger.infra.repo.challenge
+#   challenger.app.services.textmessage
 #
-# To create the implementation for this repository, edit its
+# To create the implementation for this service, edit its
 # module at:
 #
-#   ./challenger/infra/repo/challenge/impl.py
+#   ./challenger/app/services/textmessage/impl.py
 #
 #######################################################################
 
-# Specifies the name of the repository class. This value is also used
+# Specifies the name of the service class. This value is also used
 # to generate a module name, amongst other uses. Therefor, for correct
 # operation of the SG compiler, this SHOULD NOT be changed.
-name: ChallengeRepository
+name: TextMessageService
 
 
-# Defines the repository implementation(s) that are used by the
-# ChallengeRepository base class. It may also be used to inherit
+# Specifies the service layer. The SG identifies three types of services:
+# application (app), domain and infrastructure (infra).
+layer: app
+
+
+# Defines the service implementation(s) that are used by the
+# TextMessageService base class. It may also be used to inherit
 # from mixin classes. The elements are qualified names to Python
-# symbols e.g `sq.persistence.Repository`.
+# symbols e.g `sq.service.Service`.
 bases:
-- sq.persistence.Repository
+- sq.service.Service
 
 
-# This list specifies the methods that the repository class publicly
+# This list specifies the methods that the service class publicly
 # exposes. See the example below.
 #
 # methods:
@@ -48,7 +52,7 @@ bases:
 #   doc:
 #     heading: >
 #       This is the opening line of the docstring for the
-#       my_method_name repository method. It is rendered before
+#       my_method_name service method. It is rendered before
 #       the args block.
 #     returns: >
 #       The return value. See the Napoleon documentation.
@@ -57,37 +61,11 @@ bases:
 # but parameters with defaults will always come after defaultless
 # parameters in the method signature.
 methods:
-- name: persist
+- name: send
   parameters:
-  - name: dto
-  args: no
-  kwargs: no
-  doc: null
-- name: exists
-  parameters:
-  - name: using
   - name: sender
   - name: recipient
-  args: no
-  kwargs: no
-  doc: null
-- name: delete
-  parameters:
-  - name: using
-  - name: sender
-  - name: recipient
-  args: no
-  kwargs: no
-  doc: null
-- name: get
-  parameters:
-  - name: dto
-  args: no
-  kwargs: no
-  doc: null
-- name: persist_dao
-  parameters:
-  - name: dao
+  - name: message
   args: no
   kwargs: no
   doc: null
@@ -100,21 +78,20 @@ methods:
 #
 #   require: the name of the dependency
 #   desc: a description of this dependency and how it is
-#     used by the repository. This member is optional.
-#   attname: the name of the attribute on the repository class.
+#     used by the service. This member is optional.
+#   attname: the name of the attribute on the service class.
 #
 # Make sure that all dependencies listed here are injected either
 # programmatically or using the configuration files in the
 # ./etc/ioc.conf.d directory.
 dependencies:
-- require: DatabaseSessionFactory
-  attname: session
+- require: RequestFactory
+  attname: http
   desc: >
-    The database session used to persist Data Access
-    Objects (DAOs).
+    An object that exposes an interface to create HTTP requests.
 
 
-# Specifies exception classes that the repository will declare.
+# Specifies exception classes that the service will declare.
 #
 # Example:
 #
@@ -122,7 +99,7 @@ dependencies:
 # - name: MyCustomException
 #   base: sq.exceptions.ObjectDoesNotExist
 #   doc: >
-#     This exception is raised when an object that the repository is
+#     This exception is raised when an object that the service is
 #     trying to lookup does not exist.
 #
 # If the `base` attribute is not defined, then the exception inherits

@@ -70,6 +70,41 @@ paths:
         default:
           $ref: "#/components/responses/UncaughException"
 
+  /verify:
+    summary: Verify a challenge sent to a recipient.
+    x-endpoint:
+      classname: VerifyEndpoint
+      controller:
+        qualname: VerifyCtrl
+    post:
+      operationId: verify
+      summary: >
+        Determine if the challenge code for the sender and recipient specified
+        in the request entity is valid.
+      requestBody:
+        description: >
+          Identifies the challenge that was sent and its verification code.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Verification"
+      responses:
+        200:
+          description: >
+            The code provided in the request entity was valid for the specified
+            sender and recipient.
+        403:
+          description: >
+            The code provided in the request entity is not valid for the
+            specified sender and recipient.
+        422:
+          description: >
+            The structure of the entity enclosed in the request body is invalid.
+        503:
+          $ref: "#/components/responses/ServiceNotAvailable"
+        default:
+          $ref: "#/components/responses/UncaughException"
+
   /challenge:
     summary: Set a challenge code using the channel specified in the request URI.
     x-endpoint:
@@ -94,8 +129,10 @@ paths:
             A new challenge is created and queued for tranmission to the
             receiver.
         409:
+          $ref: "#/components/responses/DuplicateEntity"
+        422:
           description: >
-            A challenge exists for the specified phonenumber or email address.
+            The structure of the entity enclosed in the request body is invalid.
         503:
           $ref: "#/components/responses/ServiceNotAvailable"
         default:
@@ -107,7 +144,8 @@ paths:
         recipient. Invoking this method will reset the `ttl` value.
       requestBody:
         description: >
-          Specifies the parameters for the challenge sent to the recipient.
+          Specifies the parameters for the challenge sent to the recipient. Note that
+          for this request method, the `message` parameter may be omitted.
         content:
           application/json:
             schema:
@@ -120,6 +158,9 @@ paths:
         404:
           description: >
             No challenge exists for the specified phonenumber or email address.
+        422:
+          description: >
+            The structure of the entity enclosed in the request body is invalid.
         503:
           $ref: "#/components/responses/ServiceNotAvailable"
         default:
@@ -141,6 +182,13 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
 
+    DuplicateEntity:
+      description: The client tried to create an entity with an identity that already exists.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DuplicateEntity"
+
   schemas:
     TextMessageChallenge:
       description: >
@@ -151,14 +199,7 @@ components:
       required:
       - recipient
       - sender
-      - message
       properties:
-        recipient:
-          description: >
-            The phonenumber to challenge, in ITU-T E.164 format.
-          type: string
-          format: phonenumber
-          nullable: false
         sender:
           description: >
             The sender of the challenge; this will be displayed in the user
@@ -167,13 +208,22 @@ components:
             of only numeric characters, the maximum length is `18`.
           type: string
           nullable: false
+        recipient:
+          description: >
+            The phonenumber to challenge, in ITU-T E.164 format.
+          type: string
+          format: phonenumber
+          nullable: false
         message:
           description: >
             The message to send to the phonenumber. For SMS challenges, this may
             not exceed 140 characters and MUST contain the text `{code}`, which
             will be replaced with a random string consisting of six numeric
-            characters.
+            characters. If `message` is null and this object is used to issue
+            a new challenge, then only the confirmation code will be sent.
           type: string
+          nullable: true
+          default: null
 
     Challenge:
       description: >
@@ -181,7 +231,7 @@ components:
         selected delivery mechanism.
       type: object
       example:
-        using: text
+        using: sms
         ttl: 86400000
         sender: "Challenger"
         recipient: "+31612345678"
@@ -211,7 +261,52 @@ components:
           format: int64
           default: 86400000
 
+    Verification:
+      description: >
+        Describes a request to verify the confirmation code for a given
+        sender and recipient.
+      type: object
+      example:
+        using: sms
+        sender: Quantum
+        recipient: "+31612345678"
+        code: "123456"
+      nullable: false
+      required:
+      - sender
+      - recipient
+      - code
+      - using
+      properties:
+        using:
+          description: >
+            Specifies the delivery mechanism for the challenge.
+          type: string
+          enum:
+          - voice
+          - sms
+        sender:
+          description: >
+            The sender of the challenge; this will be displayed in the user
+            device if the delivery mechanism is SMS. If `sender` consists of
+            alphanumeric characters, its maximum length is `11`. If it consists
+            of only numeric characters, the maximum length is `18`.
+          type: string
+          nullable: false
+        recipient:
+          description: >
+            The phonenumber to challenge, in ITU-T E.164 format.
+          type: string
+          format: phonenumber
+          nullable: false
+        code:
+          description: >
+            The secret code that may be used to verify the phonenumber.
+          type: string
+          nullable: false
+
     Version:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
@@ -225,6 +320,7 @@ components:
           type: string
 
     Health:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
@@ -247,6 +343,7 @@ components:
           format: int64
 
     Error:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
@@ -283,12 +380,49 @@ components:
           format: uuid
 
     ServiceNotAvailable:
+      x-qsa-norender: true
       type: object
       nullable: false
       example:
         code: "SERVICE_NOT_AVAILABLE"
         detail: "The service is currently not available. Try again later."
         hint: "Cease making requests until after the period indicated in the Retry-After header."
+      required:
+      - code
+      - message
+      - detail
+      - hint
+      properties:
+        code:
+          description: >
+            Specifies the cause of service unavailability.
+          type: string
+        message:
+          description: >
+            Error message targeted at the end-user.
+          type: string
+        detail:
+          description: >
+            A message providing a more detailed explanation of the reasons
+            why the service is not available.
+          type: string
+        hint:
+          description: >
+            A hint indicating on how to resolve the situation.
+          type: string
+
+    DuplicateEntity:
+      x-qsa-norender: true
+      type: object
+      nullable: false
+      example:
+        code: "DUPLICATE_ENTITY"
+        detail: >-
+          Unable to create the entity specified in the request body because an
+          entity with the same identity already exists.
+        hint: >-
+          Ensure that the identity of the entity enclosed in the request
+          body is unique.
       required:
       - code
       - message

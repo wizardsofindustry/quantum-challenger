@@ -1,24 +1,23 @@
 import ioc
 import sq.interfaces.http
 
-from ..schema import Challenge
-from ..schema import Challenge
+from ..schema import Verification
 
 
-class ChallengeEndpoint(sq.interfaces.http.Endpoint):
+class VerifyEndpoint(sq.interfaces.http.Endpoint):
     """Deserializes, serializes and validates the structure of the input and output
     (requests and response) to its configured URL endpoint, which exposes the
     following functionality:
 
-        Set a challenge code using the channel specified in the request URI.
+        Verify a challenge sent to a recipient.
 
-    A :class:`ChallengeEndpoint` validates the structure of the request headers,
+    A :class:`VerifyEndpoint` validates the structure of the request headers,
     URL parameters, query parameters and entity prior to forwarding the
     request to its handler (controller).
 
-    The handler function (e.g., :meth:`~ChallengeCtrl.get()`) may,
+    The handler function (e.g., :meth:`~VerifyCtrl.get()`) may,
     instead of a :class:`~sq.interfaces.http.Response` object, return a tuple
-    or a dictionary. The :class:`ChallengeEndpoint` instance will interpret
+    or a dictionary. The :class:`VerifyEndpoint` instance will interpret
     these return values as follows:
 
     -   If the return value is a :class:`dict`, then the endpoint assumes that
@@ -36,21 +35,18 @@ class ChallengeEndpoint(sq.interfaces.http.Endpoint):
     best-matching content type in the client ``Accept`` header. If no
     match is found, the client receives a ``406`` response.
 
-    During serialization, A schema may be selected by :class:`ChallengeEndpoint`
+    During serialization, A schema may be selected by :class:`VerifyEndpoint`
     based on the response status code and content type, if one was defined in
     the OpenAPI definition for this API endpoint.
     """
-    pattern = "/challenge"
-    ctrl = ioc.class_property("ChallengeCtrl")
+    pattern = "/verify"
+    ctrl = ioc.class_property("VerifyCtrl")
 
     #: The mapping below specifies the schema of structured data in the
     #: request body per content type.
     payload = {
         "post": {
-            "application/json": Challenge
-        },
-        "put": {
-            "application/json": Challenge
+            "application/json": Verification
         }
     }
 

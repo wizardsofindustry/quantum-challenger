@@ -6,6 +6,11 @@ relations:
     Maintains information about verification challenges sent to
     a (mobile) phonenumber.
   columns:
+  - name: sender
+    type: string
+    primary_key: true
+    description: >
+      Identifies the sender of the challenge code.
   - name: recipient
     type: string
     primary_key: true

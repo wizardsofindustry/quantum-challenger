@@ -11,6 +11,14 @@ class PhonenumberChallenge(Relation):
 
     __tablename__ = 'phonenumberchallenges'
 
+    #: Identifies the sender of the challenge code.
+    sender = sqlalchemy.Column(
+        sqlalchemy.String,
+        name='sender',
+        primary_key=True,
+        nullable=False
+    )
+
     #: Specifies the phonenumber to which the challenge was sent.
     recipient = sqlalchemy.Column(
         sqlalchemy.String,
