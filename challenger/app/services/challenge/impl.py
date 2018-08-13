@@ -61,7 +61,7 @@ class ChallengeService(BaseChallengeService):
         return self.dto(success=is_valid, attempts=dao.attempts)
 
     def _retry_sms(self, dto):
-        dao = self.repo.get(dto.using, dto.recipient)
+        dao = self.repo.get(dto)
         if dao is None:
             self._on_recipient_not_challenged(dto)
         self.sms.send(sender=dao.sender, recipient=dao.recipient,
@@ -71,7 +71,7 @@ class ChallengeService(BaseChallengeService):
         raise self.AlreadyChallenged()
 
     def _on_recipient_not_challenged(self, dto):
-        raise self.ChallengeDoesNotExist([dto.recipient],
+        raise self.ChallengeDoesNotExist([dto.sender, dto.recipient],
             name='Challenge')
 
     def _on_invalid_delivery_mechanism(self, dto):

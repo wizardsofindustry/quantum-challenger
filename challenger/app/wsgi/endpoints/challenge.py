@@ -2,6 +2,7 @@ import ioc
 import sq.interfaces.http
 
 from ..schema import Challenge
+from ..schema import Challenge
 
 
 class ChallengeEndpoint(sq.interfaces.http.Endpoint):
@@ -46,6 +47,9 @@ class ChallengeEndpoint(sq.interfaces.http.Endpoint):
     #: request body per content type.
     payload = {
         "post": {
+            "application/json": Challenge
+        },
+        "put": {
             "application/json": Challenge
         }
     }
