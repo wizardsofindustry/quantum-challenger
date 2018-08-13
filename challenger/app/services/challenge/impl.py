@@ -34,7 +34,8 @@ class ChallengeService(BaseChallengeService):
         self.repo.persist(dto)
         self.sms.send(sender=dto.sender, recipient=dto.recipient,
             message=dto.message)
-        return self.dto(code=dto.code)
+        return self.dto(code=dto.code)\
+            if challenger.environ.DEBUG else self.dto({})
 
     def retry(self, dto):
         """Retry a challenge for the specified recipient."""

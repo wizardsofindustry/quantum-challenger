@@ -29,8 +29,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 'message': "Your activation code is {code}"
             }
         )
-        if response.status_code != 202:
-            self.fail("Failed to create Challenge")
+        assert response.status_code == 202
 
     @sq.test.integration
     def test_create_challenge_phonenumber_sms(self):
@@ -52,6 +51,52 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
         # Ensure that DEBUG=1
         response = json.loads(response.response[0])
         result = self.service.verify(dto | response)
+
+    @sq.test.integration
+    def test_challenge_fails_with_invalid_mechanism_sms(self):
+        with self.assertRaises(self.service.InvalidDeliveryChannel):
+            response = self.request(
+                self.endpoint.handle,
+                method='PUT',
+                accept="application/json",
+                json={
+                    'using': 'invalid',
+                    'sender': 'Challenger',
+                    'recipient': "+31612345678",
+                    'message': "Your activation code is {code}"
+                }
+            )
+
+    @sq.test.integration
+    def test_retry_fails_with_invalid_mechanism_sms(self):
+        with self.assertRaises(self.service.InvalidDeliveryChannel):
+            response = self.request(
+                self.endpoint.handle,
+                method='POST',
+                accept="application/json",
+                json={
+                    'using': 'invalid',
+                    'sender': 'Challenger',
+                    'recipient': "+31612345678",
+                    'message': "Your activation code is {code}"
+                }
+            )
+
+    @sq.test.integration
+    def test_retry_fails_with_non_existing_challenge_sms(self):
+        with self.assertRaises(self.service.ChallengeDoesNotExist):
+            response = self.request(
+                self.endpoint.handle,
+                method='PUT',
+                accept="application/json",
+                json={
+                    'using': 'sms',
+                    'sender': 'Challenger',
+                    'recipient': "+31687654321",
+                    'message': "Your activation code is {code}"
+                }
+            )
+            self.fail(response.response[0])
 
     @sq.test.integration
     def test_retry_challenge_phonenumber_sms(self):
@@ -128,3 +173,6 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                     'message': "Your activation code is {code}"
                 }
             )
+
+
+#pylint: skip-file
