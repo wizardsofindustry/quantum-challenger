@@ -29,7 +29,7 @@ class ChallengeService(BaseChallengeService):
         dto['code'] = self._generate_code()
         dto['message'] = dto.message.format(code=dto.code)\
             if dto.get('message') else str(dto.code)
-        if self.repo.exists(dto.using, dto.sender, dto.recipient):
+        if self.repo.exists(dto.purpose, dto.using, dto.sender, dto.recipient):
             self._on_duplicate_challenge(dto)
         self.repo.persist(dto)
         self.sms.send(sender=dto.sender, recipient=dto.recipient,
@@ -57,7 +57,7 @@ class ChallengeService(BaseChallengeService):
             dao.attempts += 1
             self.repo.persist_dao(dao)
         else:
-            self.repo.delete(dao.using, dao.sender, dao.recipient)
+            self.repo.delete(dao.purpose, dao.using, dao.sender, dao.recipient)
 
         return self.dto(success=is_valid, attempts=dao.attempts)
 

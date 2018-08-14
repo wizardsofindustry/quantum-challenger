@@ -245,7 +245,14 @@ components:
           sms: "#/components/schemas/TextMessageChallenge"
       required:
       - using
+      - purpose
       properties:
+        purpose:
+          description: >
+            Indicates the purpose of this specific challenge.
+          type: string
+          enum:
+          - SUBJECT_REGISTRATION
         using:
           description: >
             Specifies the delivery mechanism for the challenge.
@@ -273,11 +280,18 @@ components:
         code: "123456"
       nullable: false
       required:
+      - purpsose
       - sender
       - recipient
       - code
       - using
       properties:
+        purpose:
+          description: >
+            Indicates the purpose of this specific challenge.
+          type: string
+          enum:
+          - SUBJECT_REGISTRATION
         using:
           description: >
             Specifies the delivery mechanism for the challenge.

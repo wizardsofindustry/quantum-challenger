@@ -35,6 +35,7 @@ class ChallengeRepository(BaseChallengeRepository):
     def _persist_voice(self, dto):
         now = quantum.lib.timezone.now()
         dao = self.models[dto.using](
+            purpose=dto.purpose,
             sender=dto.sender,
             recipient=dto.recipient,
             challenged=now,
@@ -47,12 +48,13 @@ class ChallengeRepository(BaseChallengeRepository):
         self.session.add(dao)
         self.session.flush()
 
-    def exists(self, using, sender, recipient):
+    def exists(self, purpose, using, sender, recipient):
         """Return a boolean indicating if a challenge over the delivery
         mechanism `using` exists for the specified `recipient`.
         """
         Relation = self.models[using]
         query = sqlalchemy.exists()\
+            .where(Relation.purpose == purpose)\
             .where(Relation.sender == sender)\
             .where(Relation.recipient == recipient)
         return self.session.query(query).scalar()
@@ -64,16 +66,18 @@ class ChallengeRepository(BaseChallengeRepository):
         assert dto.using in list(self.models.keys())
         Relation = self.models[dto.using]
         return self.session.query(Relation)\
+            .filter(Relation.purpose == dto.purpose)\
             .filter(Relation.sender == dto.sender)\
             .filter(Relation.recipient == dto.recipient)\
             .first()
 
-    def delete(self, using, sender, recipient):
+    def delete(self, purpose, using, sender, recipient):
         """Deletes the challenge identified by `using`, `sender` and
         `recipient` from the persistent storage backend.
         """
         Relation = self.models[using]
         self.session.query(Relation)\
+            .filter(Relation.purpose == purpose)\
             .filter(Relation.using == using)\
             .filter(Relation.sender == sender)\
             .filter(Relation.recipient == recipient)\
