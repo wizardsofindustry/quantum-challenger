@@ -280,7 +280,7 @@ components:
         code: "123456"
       nullable: false
       required:
-      - purpsose
+      - purpose
       - sender
       - recipient
       - code
