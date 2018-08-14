@@ -48,7 +48,8 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
             json=dto
         )
         self.assertEqual(response.status_code, 202)
-        self.assertTrue(self.repo.exists('sms', 'Challenger', '+31687654321'))
+        self.assertTrue(self.repo.exists('SUBJECT_REGISTRATION',
+            'sms', 'Challenger', '+31687654321'))
 
         # Ensure that DEBUG=1
         response = json.loads(response.response[0])
