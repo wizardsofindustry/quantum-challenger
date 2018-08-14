@@ -11,6 +11,11 @@ class Challenge(sq.schema.Schema):
     the selected delivery mechanism.
     """
 
+    #: Indicates the purpose of this specific challenge.
+    purpose = sq.schema.fields.String(
+        allow_none=False
+    )
+
     #: Specifies the delivery mechanism for the challenge.
     using = sq.schema.fields.String(
         required=True,
