@@ -35,6 +35,7 @@ class ChallengeRepository(BaseChallengeRepository):
     def _persist_voice(self, dto):
         now = quantum.lib.timezone.now()
         dao = self.models[dto.using](
+            purpose=dto.purpose,
             sender=dto.sender,
             recipient=dto.recipient,
             challenged=now,

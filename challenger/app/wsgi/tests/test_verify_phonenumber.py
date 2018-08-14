@@ -18,6 +18,7 @@ class VerifyPhonenumberChallengeTestCase(sq.test.SystemTestCase):
         self.endpoint = VerifyEndpoint()
         self.service = ioc.require('ChallengeService')
         dto = self.service.challenge(self.dto({
+                'purpose': 'SUBJECT_REGISTRATION',
                 'using': 'sms',
                 'sender': 'Challenger',
                 'recipient': "+31612345678",
