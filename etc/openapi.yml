@@ -246,6 +246,12 @@ components:
       required:
       - using
       properties:
+        purpose:
+          description: >
+            Indicates the purpose of this specific challenge.
+          type: string
+          enum:
+          - SUBJECT_REGISTRATION
         using:
           description: >
             Specifies the delivery mechanism for the challenge.
