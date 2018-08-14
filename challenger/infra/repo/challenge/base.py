@@ -8,10 +8,10 @@ class BaseChallengeRepository(Repository):
     def persist(self, dto):
         raise NotImplementedError("Subclasses must override this method.")
 
-    def exists(self, using, sender, recipient):
+    def exists(self, purpose, using, sender, recipient):
         raise NotImplementedError("Subclasses must override this method.")
 
-    def delete(self, using, sender, recipient):
+    def delete(self, purpose, using, sender, recipient):
         raise NotImplementedError("Subclasses must override this method.")
 
     def get(self, dto):
