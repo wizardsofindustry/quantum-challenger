@@ -72,6 +72,38 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
             )
 
     @sq.test.integration
+    def test_challenge_numeric_sender_must_be_max_18_characters(self):
+        with self.assertRaises(quantum.exceptions.UnprocessableEntity):
+            response = self.request(
+                self.endpoint.handle,
+                method='PUT',
+                accept="application/json",
+                json={
+                    'purpose': 'SUBJECT_REGISTRATION',
+                    'using': 'sms',
+                    'sender': '1234567890123456789',
+                    'recipient': "+31612345678",
+                    'message': "Your activation code is {code}"
+                }
+            )
+
+    @sq.test.integration
+    def test_challenge_alphanumeric_sender_must_be_max_11_characters(self):
+        with self.assertRaises(quantum.exceptions.UnprocessableEntity):
+            response = self.request(
+                self.endpoint.handle,
+                method='PUT',
+                accept="application/json",
+                json={
+                    'purpose': 'SUBJECT_REGISTRATION',
+                    'using': 'sms',
+                    'sender': '1234567890ab',
+                    'recipient': "+31612345678",
+                    'message': "Your activation code is {code}"
+                }
+            )
+
+    @sq.test.integration
     def test_retry_fails_with_invalid_mechanism_sms(self):
         with self.assertRaises(self.service.InvalidDeliveryChannel):
             response = self.request(
