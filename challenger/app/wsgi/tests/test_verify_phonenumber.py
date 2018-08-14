@@ -35,6 +35,7 @@ class VerifyPhonenumberChallengeTestCase(sq.test.SystemTestCase):
             method='POST',
             accept="application/json",
             json={
+                'purpose': 'SUBJECT_REGISTRATION',
                 'using': 'sms',
                 'sender': 'Challenger',
                 'recipient': "+31612345678",
@@ -50,6 +51,7 @@ class VerifyPhonenumberChallengeTestCase(sq.test.SystemTestCase):
             method='POST',
             accept="application/json",
             json={
+                'purpose': 'SUBJECT_REGISTRATION',
                 'using': 'sms',
                 'sender': 'Challenger',
                 'recipient': "+31612345678",
@@ -65,6 +67,7 @@ class VerifyPhonenumberChallengeTestCase(sq.test.SystemTestCase):
             method='POST',
             accept="application/json",
             json={
+                'purpose': 'SUBJECT_REGISTRATION',
                 'using': 'sms',
                 'sender': 'Challenger',
                 'recipient': "+31687654321",

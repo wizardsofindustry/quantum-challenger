@@ -23,6 +23,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
             method='POST',
             accept="application/json",
             json={
+                'purpose': 'SUBJECT_REGISTRATION',
                 'using': 'sms',
                 'sender': 'Challenger',
                 'recipient': "+31612345678",
@@ -34,6 +35,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
     @sq.test.integration
     def test_create_challenge_phonenumber_sms(self):
         dto=self.dto(
+            purpose='SUBJECT_REGISTRATION',
             using='sms',
             sender='Challenger',
             recipient="+31687654321",
@@ -60,6 +62,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 method='PUT',
                 accept="application/json",
                 json={
+                    'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'invalid',
                     'sender': 'Challenger',
                     'recipient': "+31612345678",
@@ -75,6 +78,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 method='POST',
                 accept="application/json",
                 json={
+                    'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'invalid',
                     'sender': 'Challenger',
                     'recipient': "+31612345678",
@@ -90,6 +94,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 method='PUT',
                 accept="application/json",
                 json={
+                    'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'sms',
                     'sender': 'Challenger',
                     'recipient': "+31687654321",
@@ -101,6 +106,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
     @sq.test.integration
     def test_retry_challenge_phonenumber_sms(self):
         dto=self.dto(
+            purpose='SUBJECT_REGISTRATION',
             using='sms',
             sender='Challenger',
             recipient="+31612345678",
@@ -122,6 +128,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 method='POST',
                 accept="application/json",
                 json={
+                    'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'sms',
                     'sender': 'Challenger',
                     'recipient': "0612345678",
@@ -137,6 +144,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 method='POST',
                 accept="application/json",
                 json={
+                    'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'sms',
                     'sender': 'Challenger',
                     'recipient': "+31687654321",
@@ -152,6 +160,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 method='POST',
                 accept="application/json",
                 json={
+                    'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'sms',
                     'sender': 'Challenger',
                     'recipient': "+31687654321",
@@ -167,6 +176,7 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                 method='POST',
                 accept="application/json",
                 json={
+                    'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'sms',
                     'sender': 'Challenger',
                     'recipient': "+31612345678",
