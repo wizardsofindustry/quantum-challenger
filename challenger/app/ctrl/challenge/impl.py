@@ -17,6 +17,10 @@ class ChallengeCtrl(BaseChallengeCtrl):
                 "The message must contain the '{code}' replacement token.")
         if len(payload.message) > 140 and payload.using == 'sms':
             errors['message'].append("Message must not exceed 140 characters.")
+        if payload.sender.isdigit() and len(payload.sender) > 18:
+            errors['sender'] = "Numeric sender must not exceed 18 digits."
+        if not payload.sender.isdigit() and len(payload.sender) > 11:
+            errors['sender'] = "Numeric sender must not exceed 11 digits."
 
         if errors:
             self.unprocessable(errors=dict(errors))

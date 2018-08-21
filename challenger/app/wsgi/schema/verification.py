@@ -11,6 +11,7 @@ class Verification(sq.schema.Schema):
 
     #: Indicates the purpose of this specific challenge.
     purpose = sq.schema.fields.String(
+        required=True,
         allow_none=False
     )
 

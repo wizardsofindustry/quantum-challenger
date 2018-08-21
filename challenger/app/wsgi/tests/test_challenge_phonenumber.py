@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest.mock import MagicMock
 
 import ioc
 import sq.exceptions
@@ -18,6 +19,8 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
         self.endpoint = ChallengeEndpoint()
         self.service = ioc.require('ChallengeService')
         self.repo = ioc.require('ChallengeRepository')
+
+        ioc.require('RequestFactory').post = MagicMock()
         response = self.request(
             self.endpoint.handle,
             method='POST',
@@ -66,6 +69,38 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
                     'purpose': 'SUBJECT_REGISTRATION',
                     'using': 'invalid',
                     'sender': 'Challenger',
+                    'recipient': "+31612345678",
+                    'message': "Your activation code is {code}"
+                }
+            )
+
+    @sq.test.integration
+    def test_challenge_numeric_sender_must_be_max_18_characters(self):
+        with self.assertRaises(quantum.exceptions.UnprocessableEntity):
+            response = self.request(
+                self.endpoint.handle,
+                method='PUT',
+                accept="application/json",
+                json={
+                    'purpose': 'SUBJECT_REGISTRATION',
+                    'using': 'sms',
+                    'sender': '1234567890123456789',
+                    'recipient': "+31612345678",
+                    'message': "Your activation code is {code}"
+                }
+            )
+
+    @sq.test.integration
+    def test_challenge_alphanumeric_sender_must_be_max_11_characters(self):
+        with self.assertRaises(quantum.exceptions.UnprocessableEntity):
+            response = self.request(
+                self.endpoint.handle,
+                method='PUT',
+                accept="application/json",
+                json={
+                    'purpose': 'SUBJECT_REGISTRATION',
+                    'using': 'sms',
+                    'sender': '1234567890ab',
                     'recipient': "+31612345678",
                     'message': "Your activation code is {code}"
                 }
