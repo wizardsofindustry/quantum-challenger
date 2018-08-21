@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest.mock import MagicMock
 
 import ioc
 import sq.exceptions
@@ -17,6 +18,7 @@ class VerifyPhonenumberChallengeTestCase(sq.test.SystemTestCase):
         super(VerifyPhonenumberChallengeTestCase, self).setUp()
         self.endpoint = VerifyEndpoint()
         self.service = ioc.require('ChallengeService')
+        ioc.require('RequestFactory').post = MagicMock()
         dto = self.service.challenge(self.dto({
                 'purpose': 'SUBJECT_REGISTRATION',
                 'using': 'sms',

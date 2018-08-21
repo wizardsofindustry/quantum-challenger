@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest.mock import MagicMock
 
 import ioc
 import sq.exceptions
@@ -18,6 +19,8 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
         self.endpoint = ChallengeEndpoint()
         self.service = ioc.require('ChallengeService')
         self.repo = ioc.require('ChallengeRepository')
+
+        ioc.require('RequestFactory').post = MagicMock()
         response = self.request(
             self.endpoint.handle,
             method='POST',
