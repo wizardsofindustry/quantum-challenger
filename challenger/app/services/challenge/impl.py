@@ -67,6 +67,8 @@ class ChallengeService(BaseChallengeService):
             self._on_recipient_not_challenged(dto)
         self.sms.send(sender=dao.sender, recipient=dao.recipient,
             message=dao.message)
+        return self.dto(code=dao.code)\
+            if challenger.environ.DEBUG else self.dto({})
 
     def _on_duplicate_challenge(self, dto): #pylint: disable=unused-argument
         raise self.AlreadyChallenged()
