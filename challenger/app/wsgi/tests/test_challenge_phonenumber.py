@@ -7,6 +7,7 @@ import sq.exceptions
 import sq.test
 import quantum.exceptions
 
+from .... import environ
 from ....infra import orm
 from ..endpoints import ChallengeEndpoint
 
@@ -57,6 +58,31 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
         # Ensure that DEBUG=1
         response = json.loads(response.response[0])
         result = self.service.verify(dto | response)
+
+    @unittest.skipIf(not environ.DEBUG, "Run in debug mode only")
+    @sq.test.integration
+    def test_create_challenge_phonenumber_sms_returns_code_in_debug(self):
+        dto=self.dto(
+            purpose='SUBJECT_REGISTRATION',
+            using='sms',
+            sender='Challenger',
+            recipient="+31687654321",
+            message="Your activation code is {code}"
+        )
+        response = self.request(
+            self.endpoint.handle,
+            method='POST',
+            accept="application/json",
+            json=dto
+        )
+        self.assertEqual(response.status_code, 202)
+        self.assertTrue(self.repo.exists('SUBJECT_REGISTRATION',
+            'sms', 'Challenger', '+31687654321'))
+
+        # Ensure that DEBUG=1
+        result = json.loads(response.response[0])
+        self.assertEqual(response.status_code, 202)
+        self.assertIn('code', result)
 
     @sq.test.integration
     def test_challenge_fails_with_invalid_mechanism_sms(self):
@@ -155,6 +181,26 @@ class CreatePhonenumberChallengeTestCase(sq.test.SystemTestCase):
             json=dto
         )
         self.assertEqual(response.status_code, 202)
+
+    @unittest.skipIf(not environ.DEBUG, "Run in debug mode only")
+    @sq.test.integration
+    def test_retry_challenge_phonenumber_sms_contains_code_in_debug(self):
+        dto=self.dto(
+            purpose='SUBJECT_REGISTRATION',
+            using='sms',
+            sender='Challenger',
+            recipient="+31612345678",
+            message="Your activation code is {code}"
+        )
+        response = self.request(
+            self.endpoint.handle,
+            method='PUT',
+            accept="application/json",
+            json=dto
+        )
+        self.assertEqual(response.status_code, 202)
+        result = json.loads(response.response[0])
+        self.assertIn('code', result)
 
     @sq.test.integration
     def test_phonenumber_must_be_valid_itu_e164_sms(self):

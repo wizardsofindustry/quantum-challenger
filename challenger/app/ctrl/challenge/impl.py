@@ -36,4 +36,4 @@ class ChallengeCtrl(BaseChallengeCtrl):
         request entity.
         """
         self.service.retry(request.payload)
-        return self.render_to_response(ctx={}, status_code=202)
+        return 202, self.service.retry(request.payload)
