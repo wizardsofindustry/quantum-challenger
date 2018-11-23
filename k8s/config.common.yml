@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config.common.challenger
+  namespace: citadel
+data:
+  # CHALLENGER_GIT_COMMIT: ""
+  CHALLENGER_HTTP_ADDR: "0.0.0.0"
+  CHALLENGER_HTTP_PORT: "8443"
+  CHALLENGER_IOC_DEFAULTS: "/etc/challenger/ioc.conf"
+  CHALLENGER_IOC_DIR: "/etc/challenger/ioc.conf.d/"
+  # CHALLENGER_MESSAGEBIRD_ACCESS_KEY: ""

@@ -1,0 +1,64 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: challenger-api-${QUANTUM_DEPLOYMENT_NAME}
+  namespace: citadel
+  labels:
+    deployment: ${QUANTUM_DEPLOYMENT_NAME}
+    env: ${QUANTUM_DEPLOYMENT_ENV}
+    role: api
+    run: challenger-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      env: ${QUANTUM_DEPLOYMENT_ENV}
+      role: api
+      run: challenger-api
+  template:
+    metadata:
+      labels:
+        env: ${QUANTUM_DEPLOYMENT_ENV}
+        role: api
+        run: challenger-api
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: challenger-api
+        image: wizardsofindustry/quantum-challenger:${IMAGE_TAG}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8443
+          protocol: TCP
+        resources:
+          limits:
+            memory: 300Mi
+          requests:
+            memory: 50Mi
+        env:
+        - name: CHALLENGER_RDBMS_DSN
+          valueFrom:
+            secretKeyRef:
+              key: dsn
+              name: rdbms.challenger
+        - name: CHALLENGER_ROLE
+          value: api
+        - name: CHALLENGER_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: secret_key
+              name: application.secret.challenger
+        - name: QUANTUM_DEPLOYMENT_ENV
+          value: ${QUANTUM_DEPLOYMENT_ENV}
+        - name: QUANTUM_DEPLOYMENT_NAME
+          value: ${QUANTUM_DEPLOYMENT_NAME}
+        envFrom:
+        - configMapRef:
+            name: config.common.challenger
+        - configMapRef:
+            name: config.${QUANTUM_DEPLOYMENT_ENV}.challenger
+      volumes: []
+      qosClass: Burstable
+      imagePullSecrets:
+      - name: dockerhub.wizards

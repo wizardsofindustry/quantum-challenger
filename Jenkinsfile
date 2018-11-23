@@ -3,9 +3,9 @@
 //
 //  The use-case for this pipeline is preparing and packaging a
 //  release branch for quality assurance and acceptance testing. It
-//  assumes that it is run by a Multibranch Pipeline.
+//  assumes that it is ran by a Multibranch Pipeline.
 //
-//  The pipeline identifies five testing phases:
+//  The pipeline identifies three testing phases:
 //
 //  Unit:
 //    Atomic tests of the application codebase.
@@ -14,20 +14,12 @@
 //    dependencies (e.g., database servers, HTTP APIs) mocked.
 //  System:
 //    Test the application as a part of a larger system.
-//  Smoke:
-//    Runs black box tests in order to identify non-critical
-//    issues with the application. Failing smoke tests will result
-//    in the build being UNSTABLE, even if the next phase (preliminary
-//    quality assurance) succeeds.
-//  Preliminary Quality Assurance:
-//    Like quality assurance testing, but without a "real" dataset i.e.
-//    separated from the live application environment. These are
-//    mostly black box tests on HTTP endpoints or application
-//    responses to transmission on the Aorta messaging infrastrucure.
 //
 //  External dependencies that are not maintained within the boundaries
 //  of the system being tested, are assumed to be mocked during all
-//  test phases.
+//  test phases. Services such as databases and message brokers are to be
+//  mocked during unit and integration testing; during system testing it
+//  may be assumed that these services are present on the CI/CD slave.
 //
 //  A succesful build run may result in the containerized application
 //  being published to the Docker registry (specified by $DOCKER_REGISTRY)
@@ -39,51 +31,88 @@
 //  and plugins need to be installed in the Jenkins node(s):
 //
 //  - docker
-//  - docker-compose
 //  - Jenkins Port Allocator plugin
-//  - Global Slack Notifier plugin (if Slack is enabled in SG)
+//  - SSH Agent Plugin
+//  - Global Slack Notifier plugin (if Slack is enabled in QSA)
+//  - Kubernetes Continuous Deploy (when configured to deploy with Kubernetes)
+//  - Pipeline Utility Steps
 //
-//  The pipeline assumes that the following ports are allocated by the
-//  Jenkins Port Allocator plugin, defined as environment variables:
 //
-//  HTTP_PORT: Exposes the HTTP API, if applicable.
-//  AORTA_ROUTER_PORT: Listen port for the Aorta Router, if applicable.
-//  AORTA_BACKEND_PORT: Listen port for the Aorta backend message
-//    broker, if applicable.
+//  Suggested plugins:
+//  - Google Container Registry Auth Plugin (when publishing to GCR)
 //
 //  The pipeline is further configured by the environment variables
 //  listed below:
 //
 ///////////////////////////////////////////////////////////////////////
-def image
-def image_base
-def image_name
+def changed_files
+def commit_hash
+def commit_tag
 def coverage_unit
 def coverage_integration
 def coverage_system
-def workspace
-def commit_tag
+def force_deploy
+def image
+def image_base
+def image_name
+def must_deploy
 def tags
+def workspace
 
 
 pipeline {
-  agent any
+
+  agent {
+    label 'docker'
+  }
+
+  environment {
+    CHALLENGER_RDBMS_DSN = 'sqlite:///db.sqlite3'
+    GNUPGHOME = "/tmp/build-${env.BUILD_ID}"
+  }
 
   stages {
+
     stage('Setup') {
       steps {
         script {
-          workspace = pwd()
-          tags = []
+          changed_files = sh(
+            script: 'git diff --name-only HEAD^1',
+            returnStdout: true
+          ).trim().tokenize('\n')
+          for (i in changed_files) {
+            echo "Detected change in ${i}"
+          }
 
           // Ensure that all tags are fetched and assign it to a variable. Note
           // that if the branch contains multiple tags, the last one (as returned
           // by git tag -l) will be used.
-          sh 'git fetch --tags'
-          commit_tag = sh(returnStdout: true, script: "git tag -l --points-at HEAD | tail -1").trim()
+          commit_tag = sh(
+            returnStdout: true,
+            script: "git tag -l --points-at HEAD | tail -1"
+          ).trim()
           if (commit_tag) {
             sh "echo 'Commit tag is: ${commit_tag}'"
           }
+        }
+      }
+    }
+
+    stage('Lint') {
+      parallel {
+        stage('YAML') {
+          steps {
+            sh('find . -name "*.yml" -type f | xargs python3 -m yamllint --strict')
+          }
+        }
+      } // End linting stages.
+    }
+
+    stage('Build') {
+      steps {
+        script {
+          workspace = pwd()
+          tags = []
 
           // Ensure that the base image is up-to-date
           image_base = docker.image('wizardsofindustry/quantum:latest')
@@ -99,76 +128,68 @@ pipeline {
       }
     }
 
-    stage('Run unit tests') {
-      steps {
-        script {
-          image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
-            sh 'SQ_TESTING_PHASE=unit ./bin/run-tests'
-            coverage_unit = readFile("./.coverage.unit.${env.BUILD_ID}")
+    stage('Run tests') {
+
+      parallel {
+        stage('Lint') {
+          steps {
+              script {
+                image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
+                  sh('pylint challenger --ignore __init__.py')
+                }
+              }
           }
         }
-      }
-    }
 
-    stage('Run integration tests') {
-      steps {
-        script {
-          image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
-            sh 'SQ_TESTING_PHASE=integration ./bin/run-tests'
-            coverage_integration = readFile("./.coverage.integration.${env.BUILD_ID}")
+        stage('Unit') {
+          steps {
+            script {
+              image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
+                sh 'QUANTUM_TESTING_PHASE=unit ./bin/run-tests'
+                coverage_unit = readFile("./.coverage.unit.${env.BUILD_ID}")
+              }
+            }
           }
         }
-      }
-    }
 
-    stage('Run system tests') {
-      steps {
-        script {
-          image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
-            sh 'SQ_TESTING_PHASE=system ./bin/run-tests'
-            coverage_system = readFile("./.coverage.system.${env.BUILD_ID}")
+        stage('Integration') {
+          steps {
+            script {
+              image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
+                sh 'QUANTUM_TESTING_PHASE=integration ./bin/run-tests'
+                coverage_integration = readFile("./.coverage.integration.${env.BUILD_ID}")
+              }
+            }
           }
         }
-      }
-    }
 
-    stage('Run smoke tests') {
-      steps {
-        script {
-          image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
-            sh 'SQ_TESTING_PHASE=smoke ./bin/run-tests'
-          }
-        }
-      }
-    }
-
-    stage('Run prel. QA tests') {
-      steps {
-        script {
-          image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
-            sh 'SQ_TESTING_PHASE=preqa ./bin/run-tests'
+        stage('System') {
+          steps {
+            script {
+              image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
+                sh 'QUANTUM_TESTING_PHASE=system ./bin/run-tests'
+                coverage_system = readFile("./.coverage.system.${env.BUILD_ID}")
+              }
+            }
           }
         }
       }
     }
 
     stage('Check coverage') {
-      steps {
-        script {
-          image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
-            writeFile file: ".coverage.unit.${env.BUILD_ID}", text: "${coverage_unit}"
-            writeFile file: ".coverage.integration.${env.BUILD_ID}", text: "${coverage_integration}"
-            writeFile file: ".coverage.system.${env.BUILD_ID}", text: "${coverage_system}"
-            sh 'coverage combine . && coverage report --fail-under 100 --omit **/test_*'
-          }
-        }
-      }
-    }
 
-    stage('Build final image') {
-      steps {
-        script {
-            sh 'echo "This is a stub"'
+      parallel {
+        stage('Python') {
+          steps {
+            script {
+              image.inside("--entrypoint='' -v ${workspace}:/app -e BUILD_ID=${env.BUILD_ID}") {
+                writeFile file: ".coverage.unit.${env.BUILD_ID}", text: "${coverage_unit}"
+                writeFile file: ".coverage.integration.${env.BUILD_ID}", text: "${coverage_integration}"
+                writeFile file: ".coverage.system.${env.BUILD_ID}", text: "${coverage_system}"
+                sh 'coverage combine . && coverage report --fail-under 100 --omit **/test_*'
+              }
+            }
+          }
         }
       }
     }
@@ -176,35 +197,56 @@ pipeline {
     stage('Publish') {
       steps {
         script {
+          force_deploy = false
+          commit_hash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
           if (commit_tag) {
             tags.add(commit_tag)
           }
 
-          // Generate a tag based on the commit, commit tags and Quantumfile
-          // configuration.
+          // The switch/case block below determines the deployment
+          // environment and the deployment name based on configuration
+          // in Quantumfile.ci.build_branches, so that the pipeline can
+          // publish a container and deploy it to a specific environment.
+          env.QUANTUM_DEPLOYMENT_NAME = ''
+          env.QUANTUM_DEPLOYMENT_ENV = ''
           switch(env.GIT_BRANCH) {
             case 'master':
               tags.add('latest')
               break
             case 'develop':
-              tags.add('latest-testing')
+              env.QUANTUM_DEPLOYMENT_NAME = 'staging'
+              env.QUANTUM_DEPLOYMENT_ENV = 'staging'
+              force_deploy = true
+              tags.add('staging')
               break
-            case ~/^(release|version|sprint)-.*$/:
-              tags.add("${env.GIT_BRANCH}-latest")
+            case '^(release|version|sprint)-.*$':
               break
-            case ~/^(hotfix|fix)-.*$/:
-              tags.add("${env.GIT_BRANCH}-latest")
+            case '^(hotfix|fix)-.*$':
               break
-            case ~/^(feature|task)-.*$/:
-              tags.add("${env.GIT_BRANCH}-latest")
+            case '^(feature|task)-.*$':
               break
             default:
-              sh 'echo "Branch is not a candidate for Docker image build."'
+              echo "Branch '${env.GIT_BRANCH}' is not selected for deployment."
           }
 
-          if (tags) {
+          // If the pipeline is configured to always deploy regardless of the presence
+          // of a commit tag, create one based on the short commit hash.
+          if (!commit_tag && !!env.QUANTUM_DEPLOYMENT_ENV && force_deploy) {
+            commit_tag = "${commit_hash}"
+            tags.add(commit_tag)
+          }
+
+          // Determine the tag of the image that is to be deployed, so that
+          // pipeline knows which image to deploy to ${env.QUANTUM_DEPLOYMENT_ENV}.
+          // If a tag is defined and the QUANTUM_DEPLOYMENT_ENV environment
+          // variable is set, this means we have a green light for deployment.
+          if (!!commit_tag && !!env.QUANTUM_DEPLOYMENT_ENV) {
+            env.IMAGE_TAG = commit_tag
+          }
+          must_deploy = (!!commit_tag && !!env.QUANTUM_DEPLOYMENT_ENV)
+          if (!!tags) {
             for (int i = 0; i < tags.size(); i++) {
-              withDockerRegistry([ credentialsId: 'wizards-docker-repo' ]) {
+              withDockerRegistry([ credentialsId: 'wizards.dockerhub' ]) {
                 image.push("${tags[i]}")
               }
             }
@@ -213,6 +255,113 @@ pipeline {
       }
     }
 
+    stage('Configure') {
+
+      // Configuration files are always deployed to the current environment
+      // if we detect changes, regardless of an actual container image being
+      // built. This ensures that the service, pod and job deploy steps always
+      // have access to the configs specified in the VCS.
+      when {
+        expression {
+          def files = findFiles(glob: "k8s/config.*")
+          return (files.length > 0) && !!must_deploy
+        }
+      }
+
+      parallel {
+
+        stage('Global') {
+          when {
+            expression {
+              return fileExists('k8s/config.common.yml')
+            }
+          }
+          steps {
+            kubernetesDeploy(
+              kubeconfigId: "k8s-${env.QUANTUM_DEPLOYMENT_ENV}",
+              configs: "k8s/config.common.yml",
+              enableConfigSubstitution: true
+            )
+          }
+        }
+
+        stage('Environment') {
+          when {
+            expression {
+              return fileExists("k8s/config.${env.QUANTUM_DEPLOYMENT_ENV}.yml")
+            }
+          }
+          steps {
+            kubernetesDeploy(
+              kubeconfigId: "k8s-${env.QUANTUM_DEPLOYMENT_ENV}",
+              configs: "k8s/config.${env.QUANTUM_DEPLOYMENT_ENV}.yml",
+              enableConfigSubstitution: true
+            )
+          }
+        }
+      }
+    }
+
+    stage('Deploy') {
+      when {
+        expression {
+          return !!must_deploy
+        }
+      }
+
+      parallel {
+
+        // Ensure that the Kubernetes Continuous Deploy plugin is installed on
+        // the Jenkins master. Additionally, a Kubernetes configuration must
+        // be added as a system-wide credential. The naming convention of
+        // 'k8s-<deployment environment name>' is used.
+        stage('Deploy services') {
+          when {
+            expression {
+              def files = findFiles(glob: "k8s/service.*")
+              return (files.length > 0)
+            }
+          }
+          steps {
+            kubernetesDeploy(
+              kubeconfigId: "k8s-${env.QUANTUM_DEPLOYMENT_ENV}",
+              configs: "k8s/service.*",
+              enableConfigSubstitution: true
+            )
+          }
+        }
+        stage('Deploy pods') {
+          when {
+            expression {
+              def files = findFiles(glob: "k8s/deployment.*")
+              return (files.length > 0)
+            }
+          }
+          steps {
+            kubernetesDeploy(
+              kubeconfigId: "k8s-${env.QUANTUM_DEPLOYMENT_ENV}",
+              configs: "k8s/deployment.*",
+              enableConfigSubstitution: true
+            )
+          }
+        }
+        stage('Deploy jobs') {
+          when {
+            expression {
+              def files = findFiles(glob: "k8s/job.*")
+              return (files.length > 0)
+            }
+          }
+          steps {
+            kubernetesDeploy(
+              kubeconfigId: "k8s-${env.QUANTUM_DEPLOYMENT_ENV}",
+              configs: "k8s/job.*",
+              enableConfigSubstitution: true
+            )
+          }
+        }
+      }
+    }
   } // End stages
 
   post {
