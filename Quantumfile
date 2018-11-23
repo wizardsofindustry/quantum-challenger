@@ -17,7 +17,7 @@ deployment:
   # the deployment mechanisms supported by the Quantum Service
   # Assembler.
   environments:
-  - name: 
+  - name: staging
 
   # Specifies the deployment system used to bring this app to a specific
   # environment. Supported systems are 'kubernetes'.
