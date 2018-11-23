@@ -106,7 +106,9 @@ paths:
           $ref: "#/components/responses/UncaughException"
 
   /challenge:
-    summary: Set a challenge code using the channel specified in the request URI.
+    summary: >
+      Set a challenge code using the channel specified in the
+      request URI.
     x-endpoint:
       classname: ChallengeEndpoint
       controller:
@@ -140,12 +142,14 @@ paths:
     put:
       operationId: retry
       summary: >
-        Send a challenge code over the specified channel, to an already challenged
-        recipient. Invoking this method will reset the `ttl` value.
+        Send a challenge code over the specified channel, to an already
+        challenged recipient. Invoking this method will reset the `ttl`
+        value.
       requestBody:
         description: >
-          Specifies the parameters for the challenge sent to the recipient. Note that
-          for this request method, the `message` parameter may be omitted.
+          Specifies the parameters for the challenge sent to the recipient.
+          Note that for this request method, the `message` parameter may be
+          omitted.
         content:
           application/json:
             schema:
@@ -176,14 +180,18 @@ components:
             $ref: "#/components/schemas/ServiceNotAvailable"
 
     UncaughException:
-      description: An uncaught exception condition interrupted the request-response cycle.
+      description: >
+        An uncaught exception condition interrupted the request-response
+        cycle.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
     DuplicateEntity:
-      description: The client tried to create an entity with an identity that already exists.
+      description: >
+        The client tried to create an entity with an identity that
+        already exists.
       content:
         application/json:
           schema:
@@ -362,7 +370,9 @@ components:
       nullable: false
       example:
         code: "INTERNAL_SERVER_ERROR"
-        detail: "An uncaught exception condition interrupted the request-response cycle."
+        detail: >
+          An uncaught exception condition interrupted the request-response
+          cycle.
         hint: "Contact the system administrator if the condition persists."
         id: "67dfd969-98ac-4057-b992-92e19f6ea7ac"
       required:
@@ -388,8 +398,8 @@ components:
           type: string
         id:
           description: >
-            An identifier for this specific exception condition, which may be used
-            for debugging purposes.
+            An identifier for this specific exception condition, which may
+            be used for debugging purposes.
           type: string
           format: uuid
 
@@ -400,7 +410,9 @@ components:
       example:
         code: "SERVICE_NOT_AVAILABLE"
         detail: "The service is currently not available. Try again later."
-        hint: "Cease making requests until after the period indicated in the Retry-After header."
+        hint: >
+          Cease making requests until after the period indicated in the
+          Retry-After header.
       required:
       - code
       - message

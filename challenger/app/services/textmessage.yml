@@ -1,3 +1,4 @@
+---
 #######################################################################
 #
 # SERVICE DEFINITION FOR TEXTMESSAGESERVICE
@@ -66,8 +67,8 @@ methods:
   - name: sender
   - name: recipient
   - name: message
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 
 

@@ -1,3 +1,4 @@
+---
 #######################################################################
 #
 # REPOSITORY DEFINITION FOR CHALLENGEREPOSITORY
@@ -60,8 +61,8 @@ methods:
 - name: persist
   parameters:
   - name: dto
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 - name: exists
   parameters:
@@ -69,8 +70,8 @@ methods:
   - name: using
   - name: sender
   - name: recipient
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 - name: delete
   parameters:
@@ -78,20 +79,20 @@ methods:
   - name: using
   - name: sender
   - name: recipient
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 - name: get
   parameters:
   - name: dto
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 - name: persist_dao
   parameters:
   - name: dao
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 
 

@@ -1,3 +1,4 @@
+---
 #######################################################################
 #
 # SERVICE DEFINITION FOR CHALLENGESERVICE
@@ -64,20 +65,20 @@ methods:
 - name: challenge
   parameters:
   - name: dto
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 - name: retry
   parameters:
   - name: dto
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 - name: verify
   parameters:
   - name: dto
-  args: no
-  kwargs: no
+  args: false
+  kwargs: false
   doc: null
 
 
