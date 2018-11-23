@@ -374,7 +374,7 @@ docker:
       tag: staging
       env: staging
       deployment: staging
-      always_deploy: false
+      always_deploy: true
     - pattern: "^(release|version|sprint)-.*$"
     - pattern: "^(hotfix|fix)-.*$"
     - pattern: "^(feature|task)-.*$"

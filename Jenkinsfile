@@ -216,6 +216,7 @@ pipeline {
             case 'develop':
               env.QUANTUM_DEPLOYMENT_NAME = 'staging'
               env.QUANTUM_DEPLOYMENT_ENV = 'staging'
+              force_deploy = true
               tags.add('staging')
               break
             case '^(release|version|sprint)-.*$':
